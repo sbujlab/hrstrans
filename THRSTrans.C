@@ -313,6 +313,9 @@ void THRSTrans::ShowOutput(){
 
 }
 
+
+
+
 TMatrixD *THRSTrans::makedrift(double l ){
     TMatrixD *m = new TMatrixD(20,20);
    (*m)[kX][kX] = 1.0;
@@ -611,137 +614,41 @@ void THRSTrans::PrintSimple(TMatrixD *m){
     return;
 }
 
-void THRSTrans::setcrossterms(TMatrixD *m){
-    (*m)[kX2][kX2] =  (*m)[kX][kX]*(*m)[kX][kX]; 
-    (*m)[kX2][kXTh] = 2.0*(*m)[kX][kX]*(*m)[kX][kTh]; 
-    (*m)[kX2][kXd] =  2.0*(*m)[kX][kX]*(*m)[kX][kd]; 
-    (*m)[kX2][kTh2] = (*m)[kX][kTh]*(*m)[kX][kTh]; 
-    (*m)[kX2][kThd] = 2.0*(*m)[kX][kTh]*(*m)[kX][kd]; 
-    (*m)[kX2][kd2] =  (*m)[kX][kd]*(*m)[kX][kd]; 
+TMatrixD *THRSTrans::swapxy(double sign){
+    // Sign + (RHRS convention)
+    // x-> y
+    // y->-x
 
+    if( sign == 0.0 ) exit(1);
 
-    (*m)[kXTh][kX2] =   (*m)[kX][kX]*(*m)[kTh][kX]; 
-    (*m)[kXTh][kXTh] =  (*m)[kX][kX]*(*m)[kTh][kTh] +
-                            (*m)[kX][kTh]*(*m)[kTh][kX]; 
-    (*m)[kXTh][kXd] =   (*m)[kX][kX]*(*m)[kTh][kd] +
-                            (*m)[kX][kd]*(*m)[kTh][kX]; 
-    (*m)[kXTh][kTh2] =  (*m)[kX][kTh]*(*m)[kTh][kTh] +
-                            (*m)[kX][kTh]*(*m)[kTh][kTh]; 
-    (*m)[kXTh][kThd] =  (*m)[kX][kTh]*(*m)[kTh][kd] +
-                            (*m)[kX][kd]*(*m)[kTh][kTh]; 
-    (*m)[kXTh][kd2] =   (*m)[kX][kd]*(*m)[kTh][kd] +
-                            (*m)[kX][kd]*(*m)[kTh][kd]; 
+    sign /= fabs(sign); // normalize to 1
 
-    (*m)[kXd][kX2] =    (*m)[kX][kX]*(*m)[kd][kX]; 
-    (*m)[kXd][kXTh] =   (*m)[kX][kX]*(*m)[kd][kTh] +
-                            (*m)[kX][kTh]*(*m)[kd][kX]; 
-    (*m)[kXd][kXd] =    (*m)[kX][kX]*(*m)[kd][kd] +
-                            (*m)[kX][kd]*(*m)[kd][kX]; 
-    (*m)[kXd][kTh2] =   (*m)[kX][kTh]*(*m)[kd][kTh] +
-                            (*m)[kX][kTh]*(*m)[kd][kTh]; 
-    (*m)[kXd][kThd] =   (*m)[kX][kTh]*(*m)[kd][kd] +
-                            (*m)[kX][kd]*(*m)[kd][kTh]; 
-    (*m)[kXd][kd2] =    (*m)[kX][kd]*(*m)[kd][kd] +
-                            (*m)[kX][kd]*(*m)[kd][kd]; 
+    TMatrixD *m = new TMatrixD(20,20);
+    (*m)[kX][kY] =   -1.0*sign;
+    (*m)[kTh][kPh] = -1.0*sign;
+    (*m)[kY][kX]   = sign;
+    (*m)[kPh][kTh] = sign;
+    (*m)[kd][kd]   = 1.0;
 
-    (*m)[kTh2][kX2] =    (*m)[kTh][kX]*(*m)[kTh][kX]; 
-    (*m)[kTh2][kXTh] =   (*m)[kTh][kX]*(*m)[kTh][kTh] +
-                            (*m)[kTh][kTh]*(*m)[kTh][kX]; 
-    (*m)[kTh2][kXd] =    (*m)[kTh][kX]*(*m)[kTh][kd] +
-                            (*m)[kTh][kd]*(*m)[kTh][kX]; 
-    (*m)[kTh2][kTh2] =   (*m)[kTh][kTh]*(*m)[kTh][kTh] +
-                            (*m)[kTh][kTh]*(*m)[kTh][kTh]; 
-    (*m)[kTh2][kThd] =   (*m)[kTh][kTh]*(*m)[kTh][kd] +
-                            (*m)[kTh][kd]*(*m)[kTh][kTh]; 
-    (*m)[kTh2][kd2] =    (*m)[kTh][kd]*(*m)[kTh][kd] +
-                            (*m)[kTh][kd]*(*m)[kTh][kd]; 
+    (*m)[kX2][kY2]   = 1.0;
+    (*m)[kXTh][kYPh] = 1.0;
+    (*m)[kXd][kYd]   = -1.0*sign;
+    (*m)[kTh2][kPh2]   = 1.0;
+    (*m)[kThd][kPhd]   = -1.0*sign;
+    (*m)[kd2][kd2]   = 1.0;
+    (*m)[kY2][kX2]   = 1.0;
+    (*m)[kYPh][kXTh]   = 1.0;
+    (*m)[kPh2][kTh2]   = 1.0;
+    (*m)[kXY][kXY]     = -1.0;
+    (*m)[kXPh][kThY]   = -1.0;
+    (*m)[kThY][kXPh]   = -1.0;
+    (*m)[kThPh][kThPh] = -1.0;
+    (*m)[kYd][kXd]     = sign;
+    (*m)[kPhd][kThd]   = sign;
 
-    (*m)[kThd][kX2] =    (*m)[kTh][kX]*(*m)[kd][kX]; 
-    (*m)[kThd][kXTh] =   (*m)[kTh][kX]*(*m)[kd][kTh] +
-                            (*m)[kTh][kTh]*(*m)[kd][kX]; 
-    (*m)[kThd][kXd] =    (*m)[kTh][kX]*(*m)[kd][kd] +
-                            (*m)[kTh][kd]*(*m)[kd][kX]; 
-    (*m)[kThd][kTh2] =   (*m)[kTh][kTh]*(*m)[kd][kTh] +
-                            (*m)[kTh][kTh]*(*m)[kd][kTh]; 
-    (*m)[kThd][kThd] =   (*m)[kTh][kTh]*(*m)[kd][kd] +
-                            (*m)[kTh][kd]*(*m)[kd][kTh]; 
-    (*m)[kThd][kd2] =    (*m)[kTh][kd]*(*m)[kd][kd] +
-                            (*m)[kTh][kd]*(*m)[kd][kd]; 
-
-
-    (*m)[kd2][kX2] =    (*m)[kd][kX]*(*m)[kd][kX]; 
-    (*m)[kd2][kXTh] =   (*m)[kd][kX]*(*m)[kd][kTh] +
-                            (*m)[kd][kTh]*(*m)[kd][kX]; 
-    (*m)[kd2][kXd] =    (*m)[kd][kX]*(*m)[kd][kd] +
-                            (*m)[kd][kd]*(*m)[kd][kX]; 
-    (*m)[kd2][kTh2] =   (*m)[kd][kTh]*(*m)[kd][kTh] +
-                            (*m)[kd][kTh]*(*m)[kd][kTh]; 
-    (*m)[kd2][kThd] =   (*m)[kd][kTh]*(*m)[kd][kd] +
-                            (*m)[kd][kd]*(*m)[kd][kTh]; 
-    (*m)[kd2][kd2] =    (*m)[kd][kd]*(*m)[kd][kd] +
-                            (*m)[kd][kd]*(*m)[kd][kd]; 
-
-    (*m)[kY2][kY2] =    (*m)[kY][kY]*(*m)[kY][kY]; 
-    (*m)[kY2][kYPh] =   (*m)[kY][kY]*(*m)[kY][kPh] +
-                            (*m)[kY][kPh]*(*m)[kY][kY]; 
-    (*m)[kY2][kPh2] =   (*m)[kY][kPh]*(*m)[kY][kPh] +
-                            (*m)[kY][kPh]*(*m)[kY][kPh]; 
-
-    (*m)[kYPh][kY2] =   (*m)[kY][kY]*(*m)[kPh][kY]; 
-    (*m)[kYPh][kYPh] =  (*m)[kY][kY]*(*m)[kPh][kPh] +
-                            (*m)[kY][kPh]*(*m)[kPh][kY]; 
-    (*m)[kYPh][kPh2] =  (*m)[kY][kPh]*(*m)[kPh][kPh] +
-                            (*m)[kY][kPh]*(*m)[kPh][kPh]; 
-
-
-    (*m)[kPh2][kY2] =   (*m)[kPh][kY]*(*m)[kPh][kY]; 
-    (*m)[kPh2][kYPh] =  (*m)[kPh][kY]*(*m)[kPh][kPh] +
-                            (*m)[kPh][kPh]*(*m)[kPh][kY]; 
-    (*m)[kPh2][kPh2] =  (*m)[kPh][kPh]*(*m)[kPh][kPh] +
-                            (*m)[kPh][kPh]*(*m)[kPh][kPh]; 
-
-    (*m)[kXY][kXY] =    (*m)[kX][kX]*(*m)[kY][kY]; 
-    (*m)[kXY][kXPh] =   (*m)[kX][kX]*(*m)[kY][kPh]; 
-    (*m)[kXY][kThY] =   (*m)[kX][kTh]*(*m)[kY][kY]; 
-    (*m)[kXY][kThPh] =  (*m)[kX][kTh]*(*m)[kY][kPh]; 
-    (*m)[kXY][kYd] =    (*m)[kX][kd]*(*m)[kY][kY]; 
-    (*m)[kXY][kPhd] =   (*m)[kX][kd]*(*m)[kY][kPh]; 
-
-    (*m)[kXPh][kXY] =    (*m)[kX][kX]*(*m)[kPh][kY]; 
-    (*m)[kXPh][kXPh] =   (*m)[kX][kX]*(*m)[kPh][kPh]; 
-    (*m)[kXPh][kThY] =   (*m)[kX][kTh]*(*m)[kPh][kY]; 
-    (*m)[kXPh][kThPh] =  (*m)[kX][kTh]*(*m)[kPh][kPh]; 
-    (*m)[kXPh][kYd] =    (*m)[kX][kd]*(*m)[kPh][kY]; 
-    (*m)[kXPh][kPhd] =   (*m)[kX][kd]*(*m)[kPh][kPh]; 
-
-    (*m)[kThY][kXY] =    (*m)[kTh][kX]*(*m)[kY][kY]; 
-    (*m)[kThY][kXPh] =   (*m)[kTh][kX]*(*m)[kY][kPh]; 
-    (*m)[kThY][kThY] =   (*m)[kTh][kTh]*(*m)[kY][kY]; 
-    (*m)[kThY][kThPh] =  (*m)[kTh][kTh]*(*m)[kY][kPh]; 
-    (*m)[kThY][kYd] =    (*m)[kTh][kd]*(*m)[kY][kY]; 
-    (*m)[kThY][kPhd] =   (*m)[kTh][kd]*(*m)[kY][kPh]; 
-
-    (*m)[kThPh][kXY] =    (*m)[kTh][kX]*(*m)[kPh][kY]; 
-    (*m)[kThPh][kXPh] =   (*m)[kTh][kX]*(*m)[kPh][kPh]; 
-    (*m)[kThPh][kThY] =   (*m)[kTh][kTh]*(*m)[kPh][kY]; 
-    (*m)[kThPh][kThPh] =  (*m)[kTh][kTh]*(*m)[kPh][kPh]; 
-    (*m)[kThPh][kYd] =    (*m)[kTh][kd]*(*m)[kPh][kY]; 
-    (*m)[kThPh][kPhd] =   (*m)[kTh][kd]*(*m)[kPh][kPh]; 
-
-    (*m)[kYd][kXY] =    (*m)[kd][kX]*(*m)[kY][kY]; 
-    (*m)[kYd][kXPh] =   (*m)[kd][kX]*(*m)[kY][kPh]; 
-    (*m)[kYd][kThY] =   (*m)[kd][kTh]*(*m)[kY][kY]; 
-    (*m)[kYd][kThPh] =  (*m)[kd][kTh]*(*m)[kY][kPh]; 
-    (*m)[kYd][kYd] =    (*m)[kd][kd]*(*m)[kY][kY]; 
-    (*m)[kYd][kPhd] =   (*m)[kd][kd]*(*m)[kY][kPh]; 
-
-    (*m)[kPhd][kXY] =    (*m)[kd][kX]*(*m)[kPh][kY]; 
-    (*m)[kPhd][kXPh] =   (*m)[kd][kX]*(*m)[kPh][kPh]; 
-    (*m)[kPhd][kThY] =   (*m)[kd][kTh]*(*m)[kPh][kY]; 
-    (*m)[kPhd][kThPh] =  (*m)[kd][kTh]*(*m)[kPh][kPh]; 
-    (*m)[kPhd][kYd] =    (*m)[kd][kd]*(*m)[kPh][kY]; 
-    (*m)[kPhd][kPhd] =   (*m)[kd][kd]*(*m)[kPh][kPh]; 
+    return m;
 }
+
 
 
 void THRSTrans::fillvector(TVectorD &v){
@@ -761,7 +668,123 @@ void THRSTrans::fillvector(TVectorD &v){
     v[kYd] = v[kY]*v[kd];
     v[kPhd] = v[kPh]*v[kd];
     return;
-
-
 }
+
+void THRSTrans::setcrossterms(TMatrixD *m){
+    (*m)[kX2][kX2] = (*m)[kX][kX]*(*m)[kX][kX];
+    (*m)[kX2][kXTh] = 2.0*(*m)[kX][kX]*(*m)[kX][kTh];
+    (*m)[kX2][kXd] = 2.0*(*m)[kX][kX]*(*m)[kX][kd];
+    (*m)[kX2][kTh2] = (*m)[kX][kTh]*(*m)[kX][kTh];
+    (*m)[kX2][kThd] = 2.0*(*m)[kX][kTh]*(*m)[kX][kd];
+    (*m)[kX2][kd2] = (*m)[kX][kd]*(*m)[kX][kd];
+    (*m)[kXTh][kX2] = (*m)[kX][kX]*(*m)[kTh][kX];
+    (*m)[kXTh][kXTh] = (*m)[kX][kX]*(*m)[kTh][kTh] +
+        (*m)[kX][kTh]*(*m)[kTh][kX];
+    (*m)[kXTh][kXd] = (*m)[kX][kX]*(*m)[kTh][kd] +
+        (*m)[kX][kd]*(*m)[kTh][kX];
+    (*m)[kXTh][kTh2] = (*m)[kX][kTh]*(*m)[kTh][kTh] +
+        (*m)[kX][kTh]*(*m)[kTh][kTh];
+    (*m)[kXTh][kThd] = (*m)[kX][kTh]*(*m)[kTh][kd] +
+        (*m)[kX][kd]*(*m)[kTh][kTh];
+    (*m)[kXTh][kd2] = (*m)[kX][kd]*(*m)[kTh][kd] +
+        (*m)[kX][kd]*(*m)[kTh][kd];
+    (*m)[kXd][kX2] = (*m)[kX][kX]*(*m)[kd][kX];
+    (*m)[kXd][kXTh] = (*m)[kX][kX]*(*m)[kd][kTh] +
+        (*m)[kX][kTh]*(*m)[kd][kX];
+    (*m)[kXd][kXd] = (*m)[kX][kX]*(*m)[kd][kd] +
+        (*m)[kX][kd]*(*m)[kd][kX];
+    (*m)[kXd][kTh2] = (*m)[kX][kTh]*(*m)[kd][kTh] +
+        (*m)[kX][kTh]*(*m)[kd][kTh];
+    (*m)[kXd][kThd] = (*m)[kX][kTh]*(*m)[kd][kd] +
+        (*m)[kX][kd]*(*m)[kd][kTh];
+    (*m)[kXd][kd2] = (*m)[kX][kd]*(*m)[kd][kd] +
+        (*m)[kX][kd]*(*m)[kd][kd];
+    (*m)[kTh2][kX2] = (*m)[kTh][kX]*(*m)[kTh][kX];
+    (*m)[kTh2][kXTh] = (*m)[kTh][kX]*(*m)[kTh][kTh] +
+        (*m)[kTh][kTh]*(*m)[kTh][kX];
+    (*m)[kTh2][kXd] = (*m)[kTh][kX]*(*m)[kTh][kd] +
+        (*m)[kTh][kd]*(*m)[kTh][kX];
+    (*m)[kTh2][kTh2] = (*m)[kTh][kTh]*(*m)[kTh][kTh] +
+        (*m)[kTh][kTh]*(*m)[kTh][kTh];
+    (*m)[kTh2][kThd] = (*m)[kTh][kTh]*(*m)[kTh][kd] +
+        (*m)[kTh][kd]*(*m)[kTh][kTh];
+    (*m)[kTh2][kd2] = (*m)[kTh][kd]*(*m)[kTh][kd] +
+        (*m)[kTh][kd]*(*m)[kTh][kd];
+    (*m)[kThd][kX2] = (*m)[kTh][kX]*(*m)[kd][kX];
+    (*m)[kThd][kXTh] = (*m)[kTh][kX]*(*m)[kd][kTh] +
+        (*m)[kTh][kTh]*(*m)[kd][kX];
+    (*m)[kThd][kXd] = (*m)[kTh][kX]*(*m)[kd][kd] +
+        (*m)[kTh][kd]*(*m)[kd][kX];
+    (*m)[kThd][kTh2] = (*m)[kTh][kTh]*(*m)[kd][kTh] +
+        (*m)[kTh][kTh]*(*m)[kd][kTh];
+    (*m)[kThd][kThd] = (*m)[kTh][kTh]*(*m)[kd][kd] +
+        (*m)[kTh][kd]*(*m)[kd][kTh];
+    (*m)[kThd][kd2] = (*m)[kTh][kd]*(*m)[kd][kd] +
+        (*m)[kTh][kd]*(*m)[kd][kd];
+    (*m)[kd2][kX2] = (*m)[kd][kX]*(*m)[kd][kX];
+    (*m)[kd2][kXTh] = (*m)[kd][kX]*(*m)[kd][kTh] +
+        (*m)[kd][kTh]*(*m)[kd][kX];
+    (*m)[kd2][kXd] = (*m)[kd][kX]*(*m)[kd][kd] +
+        (*m)[kd][kd]*(*m)[kd][kX];
+    (*m)[kd2][kTh2] = (*m)[kd][kTh]*(*m)[kd][kTh] +
+        (*m)[kd][kTh]*(*m)[kd][kTh];
+    (*m)[kd2][kThd] = (*m)[kd][kTh]*(*m)[kd][kd] +
+        (*m)[kd][kd]*(*m)[kd][kTh];
+    (*m)[kd2][kd2] = (*m)[kd][kd]*(*m)[kd][kd] +
+        (*m)[kd][kd]*(*m)[kd][kd];
+    (*m)[kY2][kY2] = (*m)[kY][kY]*(*m)[kY][kY];
+    (*m)[kY2][kYPh] = (*m)[kY][kY]*(*m)[kY][kPh] +
+        (*m)[kY][kPh]*(*m)[kY][kY];
+    (*m)[kY2][kPh2] = (*m)[kY][kPh]*(*m)[kY][kPh] +
+        (*m)[kY][kPh]*(*m)[kY][kPh];
+    (*m)[kYPh][kY2] = (*m)[kY][kY]*(*m)[kPh][kY];
+    (*m)[kYPh][kYPh] = (*m)[kY][kY]*(*m)[kPh][kPh] +
+        (*m)[kY][kPh]*(*m)[kPh][kY];
+    (*m)[kYPh][kPh2] = (*m)[kY][kPh]*(*m)[kPh][kPh] +
+        (*m)[kY][kPh]*(*m)[kPh][kPh];
+    (*m)[kPh2][kY2] = (*m)[kPh][kY]*(*m)[kPh][kY];
+    (*m)[kPh2][kYPh] = (*m)[kPh][kY]*(*m)[kPh][kPh] +
+        (*m)[kPh][kPh]*(*m)[kPh][kY];
+    (*m)[kPh2][kPh2] = (*m)[kPh][kPh]*(*m)[kPh][kPh] +
+        (*m)[kPh][kPh]*(*m)[kPh][kPh];
+    (*m)[kXY][kXY] = (*m)[kX][kX]*(*m)[kY][kY];
+    (*m)[kXY][kXPh] = (*m)[kX][kX]*(*m)[kY][kPh];
+    (*m)[kXY][kThY] = (*m)[kX][kTh]*(*m)[kY][kY];
+    (*m)[kXY][kThPh] = (*m)[kX][kTh]*(*m)[kY][kPh];
+    (*m)[kXY][kYd] = (*m)[kX][kd]*(*m)[kY][kY];
+    (*m)[kXY][kPhd] = (*m)[kX][kd]*(*m)[kY][kPh];
+    (*m)[kXPh][kXY] = (*m)[kX][kX]*(*m)[kPh][kY];
+    (*m)[kXPh][kXPh] = (*m)[kX][kX]*(*m)[kPh][kPh];
+    (*m)[kXPh][kThY] = (*m)[kX][kTh]*(*m)[kPh][kY];
+    (*m)[kXPh][kThPh] = (*m)[kX][kTh]*(*m)[kPh][kPh];
+    (*m)[kXPh][kYd] = (*m)[kX][kd]*(*m)[kPh][kY];
+    (*m)[kXPh][kPhd] = (*m)[kX][kd]*(*m)[kPh][kPh];
+    (*m)[kThY][kXY] = (*m)[kTh][kX]*(*m)[kY][kY];
+    (*m)[kThY][kXPh] = (*m)[kTh][kX]*(*m)[kY][kPh];
+    (*m)[kThY][kThY] = (*m)[kTh][kTh]*(*m)[kY][kY];
+    (*m)[kThY][kThPh] = (*m)[kTh][kTh]*(*m)[kY][kPh];
+    (*m)[kThY][kYd] = (*m)[kTh][kd]*(*m)[kY][kY];
+    (*m)[kThY][kPhd] = (*m)[kTh][kd]*(*m)[kY][kPh];
+    (*m)[kThPh][kXY] = (*m)[kTh][kX]*(*m)[kPh][kY];
+    (*m)[kThPh][kXPh] = (*m)[kTh][kX]*(*m)[kPh][kPh];
+    (*m)[kThPh][kThY] = (*m)[kTh][kTh]*(*m)[kPh][kY];
+    (*m)[kThPh][kThPh] = (*m)[kTh][kTh]*(*m)[kPh][kPh];
+    (*m)[kThPh][kYd] = (*m)[kTh][kd]*(*m)[kPh][kY];
+    (*m)[kThPh][kPhd] = (*m)[kTh][kd]*(*m)[kPh][kPh];
+    (*m)[kYd][kXY] = (*m)[kd][kX]*(*m)[kY][kY];
+    (*m)[kYd][kXPh] = (*m)[kd][kX]*(*m)[kY][kPh];
+    (*m)[kYd][kThY] = (*m)[kd][kTh]*(*m)[kY][kY];
+    (*m)[kYd][kThPh] = (*m)[kd][kTh]*(*m)[kY][kPh];
+    (*m)[kYd][kYd] = (*m)[kd][kd]*(*m)[kY][kY];
+    (*m)[kYd][kPhd] = (*m)[kd][kd]*(*m)[kY][kPh];
+    (*m)[kPhd][kXY] = (*m)[kd][kX]*(*m)[kPh][kY];
+    (*m)[kPhd][kXPh] = (*m)[kd][kX]*(*m)[kPh][kPh];
+    (*m)[kPhd][kThY] = (*m)[kd][kTh]*(*m)[kPh][kY];
+    (*m)[kPhd][kThPh] = (*m)[kd][kTh]*(*m)[kPh][kPh];
+    (*m)[kPhd][kYd] = (*m)[kd][kd]*(*m)[kPh][kY];
+    (*m)[kPhd][kPhd] = (*m)[kd][kd]*(*m)[kPh][kPh];
+}
+
+
+
 

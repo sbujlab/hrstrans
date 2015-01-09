@@ -10,6 +10,7 @@ class THRSTrans {
     THRSTrans( double, double, double, double );
     ~THRSTrans();
 
+    TMatrixD *swapxy(double sign = 1.0);
     TMatrixD *makedrift( double l );
     TMatrixD *makequad( double B0, double a, double l );
     TMatrixD *makedip( double theta, double rho, double n, double beta, double beta2, double psi  );
