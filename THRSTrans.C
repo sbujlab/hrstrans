@@ -256,7 +256,7 @@ void THRSTrans::DoTransport(){
                 hacc[4][0][i]->Fill(v[kd]);
 
                 // Test acceptance
-                if( fTune = kStd ){
+                if( fTune == kStd ){
                     //standard
                     switch(i){
                         case 0:
