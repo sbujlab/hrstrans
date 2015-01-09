@@ -129,7 +129,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps, tune_t tune 
         }
 
 
-        ntrk = 40000;
+        ntrk = 1000;
         gRandom->SetSeed(100);
         for( i = 0; i < ntrk; i++ ){
             ytg[i]  = gRandom->Uniform(-0.2/2.0, 0.2/2.0);

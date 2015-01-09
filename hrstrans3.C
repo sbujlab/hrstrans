@@ -12,17 +12,21 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 
     TMatrixD res = *(trans->GetTransport());
 
+    /*
     chi2 += pow(res[THRSTrans::kX][THRSTrans::kX] + 2.48, 2.0);  
     chi2 += pow(res[THRSTrans::kTh][THRSTrans::kX] + 0.15, 2.0); 
-    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
     chi2 += pow(res[THRSTrans::kTh][THRSTrans::kTh] + 0.40, 2.0); 
-//    chi2 += 1.0/pow( res[THRSTrans::kX][THRSTrans::kd]/res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be maximized
+    */
+
+    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
+    chi2 += 1.0/pow( res[THRSTrans::kX][THRSTrans::kd]/res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be maximized
 //
     // Force a couple matrix elements
 
-    chi2 += 10*pow(res[THRSTrans::kY][THRSTrans::kY] + 0.4 , 2.0);  // This should be zero
-    chi2 += 10*pow(res[THRSTrans::kPh][THRSTrans::kPh] + 0.78 , 2.0);  // This should be zero
+//    chi2 += 10*pow(res[THRSTrans::kY][THRSTrans::kY] + 0.4 , 2.0);  // This should be zero
+//    chi2 += 10*pow(res[THRSTrans::kPh][THRSTrans::kPh] + 0.78 , 2.0);  // This should be zero
 
+    // PREX Criteria
     /*
     chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be zero
     chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
@@ -41,7 +45,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
         }
     }
     if( thsum > 0 ){
-    //    chi2 += 1.0/thsum;
+        chi2 += 1.0/thsum;
     }
 
     double ysum = 0.0;
@@ -52,7 +56,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
         }
     }
     if( ysum > 0 ){
-    //chi2 += 1.0/ysum;
+    chi2 += 1.0/ysum;
     }
     // Ph 
     double phsum = 0.0;
@@ -62,7 +66,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
         }
     }
     if( phsum > 0 ){
-    //chi2 += 1.0/phsum;
+    chi2 += 1.0/phsum;
     }
     // d
     double dsum = 0.0;
@@ -72,7 +76,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
         }
     }
     if( dsum > 0 ){
-    //chi2 += 1.0/dsum;
+    chi2 += 1.0/dsum;
     }
 
 
@@ -88,9 +92,20 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 
 void hrstrans3(){
 
+    /*
     THRSTrans *trans = new THRSTrans( 1.86122e-01, -1.41506e-01, -1.37479e-01, 2.07500e-02, THRSTrans::kStd);
    trans->ShowOutput();
    return;
+   */
+
+
+    // LeRose Translated Numbers
+//    THRSTrans *trans = new THRSTrans( 0.1861, -0.1415, -0.1375, 2.07500e-02, THRSTrans::kStd);
+    // LeRose Translated Numbers, PREX
+    THRSTrans *trans = new THRSTrans( 0.1356, -0.143, -0.137, 2.07500e-02, THRSTrans::kPREX);
+   trans->ShowOutput();
+   return;
+
 
     TMinuit *gMinuit = new TMinuit(4);
     gMinuit->SetFCN(fcn);
@@ -101,10 +116,11 @@ void hrstrans3(){
     gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
     Double_t vstart[4] = {
     // Standard tune
-    1.86122e-01, -1.41506e-01, -1.37479e-01, 2.07500e-02 };
+    //1.86122e-01, -1.41506e-01, -1.37479e-01, 2.07500e-02 };
+    0.142105, -0.115789, -0.136842, 0.02075 };
     //PREX Tune
 
-    Double_t step[4] = {0.001 , 0.001 , 0.001, 0.001};
+    Double_t step[4] = {0.001 , 0.001 , 0.001, 0.000};
 
     gMinuit->mnparm(0, "q1", vstart[0], step[0], 0,0,ierflg);
     gMinuit->mnparm(1, "q2", vstart[1], step[1], 0,0,ierflg);
@@ -118,6 +134,8 @@ void hrstrans3(){
     Double_t amin,edm,errdef;
     Int_t nvpar,nparx,icstat;
     gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
+    gMinuit->mnimpr();
+    gMinuit->mnimpr();
     double q1, q2, q3, psi, e1;
 
     gMinuit->GetParameter(0, q1, e1);
