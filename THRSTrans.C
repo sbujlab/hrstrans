@@ -406,9 +406,6 @@ void THRSTrans::ShowOutput(){
 
 }
 
-
-
-
 TMatrixD *THRSTrans::makedrift(double l ){
     TMatrixD *m = new TMatrixD(20,20);
    (*m)[kX][kX] = 1.0;
@@ -501,9 +498,8 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     double ky2 = n*h*h;
 
 
-    double kx = sqrt(fabs(kx2));
-    double ky = sqrt(fabs(ky2));
-
+    double kx = sqrt(kx2);
+    double ky = sqrt(-ky2);
 
     double l = theta*rho*3.14159/180;
 
@@ -544,7 +540,7 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*mex)[kX][kY2] = -h/(cos(b2)*cos(b2))/2.0;
     (*mex)[kTh][kX] = h*tan(b2);
     (*mex)[kTh][kTh] = 1.0;
-    (*mex)[kTh][kX2] = -h*h*(n+0.5*tan(b2));
+    (*mex)[kTh][kX2] = -h*h*(n+0.5*tan(b2)*tan(b2))*tan(b2);
 
     (*mex)[kTh][kXTh] = -h*tan(b2)*tan(b2);
     (*mex)[kTh][kXd] = -h*tan(b2);
@@ -612,22 +608,23 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     dpxt = h*sxt;
 
     double I10 = dxt/h;
-    double I11 = 0.5*l*dxt;
-    double I12 = (dxt-l*cxt)/(2.0*kx2);
+    double I11 = 0.5*l*sxt;
+    double I12 = (sxt-l*cxt)/(2.0*kx2);
     double I16 = h*(I10 - I11)/kx2;
 
     double I111 = (sxt*sxt + I10)/3.0;
     double I112 = sxt*I10/3.0;
     double I116 = h*(I11 - I111)/kx2;
     double I122 = (2*I10 - sxt*sxt)/(3.0*kx2);
+    double I126 = h*(I12 - I112)/kx2;
     double I166 = h*h*( 4.0*I10/3.0 + sxt*sxt/3.0 - l*sxt)/kx2/kx2;
 
     double I20 = sxt;
-    double I21 = 0.5*(dxt+l*cxt);
+    double I21 = 0.5*(sxt+l*cxt);
     double I22 = I11;
     double I26 = 0.5*h*(sxt - l*cxt)/kx2;
 
-    double I211 = sxt*(1.0-2.0*cxt)/3.0;
+    double I211 = sxt*(1.0+2.0*cxt)/3.0;
     double I212 = (2.0*sxt*sxt - dxt/h)/3.0;
     double I216 = h*(0.5*l*cxt + sxt/6.0 - 2.0*sxt*cxt/3.0)/kx2;
     double I222 = 2.0*sxt*dxt/(h*3.0);
@@ -646,8 +643,8 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     double I314 = (2.0*sxt*cyt - syt*(1.0+cxt))/(kx2 - 4.0*ky2);
     double I323 = (2.0*ky2*syt*(1.0+cxt)/kx2 - sxt*cyt)/(kx2 - 4.0*ky2) +syt/kx2;
     double I324 = ( 2.0*cyt*dxt/h - sxt*syt )/(kx2 - 4*ky2);
-    double I336 = h*(0.5*l*cyt - ( cyt*(1.0-cxt) - 2.0*ky2*sxt*syt)/(kx2 - 4.0*ky2))/kx2;
-    double I346 = h*( I34 - (2.0*sxt*cyt - syt*(1.0+cxt))/(kx2 - 4.0*ky2) );
+    double I336 = h*(0.5*l*syt - ( cyt*(1.0-cxt) - 2.0*ky2*sxt*syt)/(kx2 - 4.0*ky2))/kx2;
+    double I346 = h*( I34 - (2.0*sxt*cyt - syt*(1.0+cxt))/(kx2 - 4.0*ky2) )/kx2;
     
     double I43 = 0.5*(syt + l*cyt);
     double I44 = I33;
@@ -665,10 +662,10 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*mdip)[kX][kd] = dxt;
 
     (*mdip)[kX][kX2] = (2.0*n-1)*h*h*h*I111 + 0.5*kx2*kx2*h*I122;
-    (*mdip)[kX][kXTh] = 2.0*(2.0*n-1)*h*h*h*I112 - kx2*h*I112;
+    (*mdip)[kX][kXTh] = h*sxt + 2.0*(2.0*n-1)*h*h*h*I112 - kx2*h*I112;
     (*mdip)[kX][kXd] = (2.0-n)*h*h*I11 + 2.0*(2.0*n-1)*h*h*h*I116 - kx2*h*h*I122;
     (*mdip)[kX][kTh2] =  (2.0*n-1)*h*h*h*I122 + 0.5*h*I111;
-    (*mdip)[kX][kThd] =  (2.0-n)*h*h*I12 + 2.0*(2.0*n-1)*h*h*h*I122 + h*h*I112;
+    (*mdip)[kX][kThd] =  (2.0-n)*h*h*I12 + 2.0*(2.0*n-1)*h*h*h*I126 + h*h*I112;
 
     (*mdip)[kX][kd2] =  -h*I10 + (2.0-n)*h*h*I16 + (2.0*n-1)*h*h*h*I166 + 0.5*h*h*h*I122;
     (*mdip)[kX][kY2] =  -0.5*ky2*h*I10;
@@ -685,8 +682,8 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*mdip)[kTh][kThd] = (2.0-n)*h*h*I22 + 2.0*(2.0*n-1)*h*h*h*I226 + h*h*I212 - h*(sxt*dpxt + spxt*dxt);
 
     (*mdip)[kTh][kd2] = -h*I20 + (2.0-n)*h*h*I26 + (2.0*n-1)*h*h*h*I266 + 0.5*h*h*h*I222 - h*dxt*dpxt;
+    (*mdip)[kTh][kY2] = -0.5*ky2*h*I20; 
     (*mdip)[kTh][kPh2] = -0.5*h*I20;
-
 
     (*mdip)[kY][kY] = cyt;
     (*mdip)[kY][kPh] = syt;
@@ -702,8 +699,8 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*mdip)[kPh][kPh] = spyt;
     (*mdip)[kPh][kXY] = -2.0*n*h*h*h*I413+kx2*ky2*h*I424 - h*cxt*cpyt;
     (*mdip)[kPh][kXPh] = h*spyt - 2.0*n*h*h*h*I414 - kx2*h*I423 - h*cxt*spyt;
-    (*mdip)[kPh][kThY] = -2.0*n*h*h*h*I423 - ky2*h*I414 - h*dxt*cpyt;
-    (*mdip)[kPh][kThPh] = -2.0*n*h*h*h*I424 + h*I413 - h*dxt*spyt;
+    (*mdip)[kPh][kThY] = -2.0*n*h*h*h*I423 - ky2*h*I414 - h*sxt*cpyt;
+    (*mdip)[kPh][kThPh] = -2.0*n*h*h*h*I424 + h*I413 - h*sxt*spyt;
     (*mdip)[kPh][kYd] = ky2*I43 - 2.0*n*h*h*h*I436 - ky2*h*h*I424 - h*dxt*cpyt;
     (*mdip)[kPh][kPhd] = ky2*I44 - 2.0*n*h*h*h*I446 + h*h*I423 - h*dxt*spyt;
 
@@ -776,6 +773,80 @@ TMatrixD *THRSTrans::swapxy(double sign){
     return m;
 }
 
+
+    (*m)[kd2][kX2] =    (*m)[kd][kX]*(*m)[kd][kX]; 
+    (*m)[kd2][kXTh] =   (*m)[kd][kX]*(*m)[kd][kTh] +
+                            (*m)[kd][kTh]*(*m)[kd][kX]; 
+    (*m)[kd2][kXd] =    (*m)[kd][kX]*(*m)[kd][kd] +
+                            (*m)[kd][kd]*(*m)[kd][kX]; 
+    (*m)[kd2][kTh2] =   (*m)[kd][kTh]*(*m)[kd][kTh] +
+                            (*m)[kd][kTh]*(*m)[kd][kTh]; 
+    (*m)[kd2][kThd] =   (*m)[kd][kTh]*(*m)[kd][kd] +
+                            (*m)[kd][kd]*(*m)[kd][kTh]; 
+    (*m)[kd2][kd2] =    (*m)[kd][kd]*(*m)[kd][kd] +
+                            (*m)[kd][kd]*(*m)[kd][kd]; 
+
+    (*m)[kY2][kY2] =    (*m)[kY][kY]*(*m)[kY][kY]; 
+    (*m)[kY2][kYPh] =   (*m)[kY][kY]*(*m)[kY][kPh] +
+                            (*m)[kY][kPh]*(*m)[kY][kY]; 
+    (*m)[kY2][kPh2] =   (*m)[kY][kPh]*(*m)[kY][kPh] +
+                            (*m)[kY][kPh]*(*m)[kY][kPh]; 
+
+    (*m)[kYPh][kY2] =   (*m)[kY][kY]*(*m)[kPh][kY]; 
+    (*m)[kYPh][kYPh] =  (*m)[kY][kY]*(*m)[kPh][kPh] +
+                            (*m)[kY][kPh]*(*m)[kPh][kY]; 
+    (*m)[kYPh][kPh2] =  (*m)[kY][kPh]*(*m)[kPh][kPh] +
+                            (*m)[kY][kPh]*(*m)[kPh][kPh]; 
+
+
+    (*m)[kPh2][kY2] =   (*m)[kPh][kY]*(*m)[kPh][kY]; 
+    (*m)[kPh2][kYPh] =  (*m)[kPh][kY]*(*m)[kPh][kPh] +
+                            (*m)[kPh][kPh]*(*m)[kPh][kY]; 
+    (*m)[kPh2][kPh2] =  (*m)[kPh][kPh]*(*m)[kPh][kPh] +
+                            (*m)[kPh][kPh]*(*m)[kPh][kPh]; 
+
+    (*m)[kXY][kXY] =    (*m)[kX][kX]*(*m)[kY][kY]; 
+    (*m)[kXY][kXPh] =   (*m)[kX][kX]*(*m)[kY][kPh]; 
+    (*m)[kXY][kThY] =   (*m)[kX][kTh]*(*m)[kY][kY]; 
+    (*m)[kXY][kThPh] =  (*m)[kX][kTh]*(*m)[kY][kPh]; 
+    (*m)[kXY][kYd] =    (*m)[kX][kd]*(*m)[kY][kY]; 
+    (*m)[kXY][kPhd] =   (*m)[kX][kd]*(*m)[kY][kPh]; 
+
+    (*m)[kXPh][kXY] =    (*m)[kX][kX]*(*m)[kPh][kY]; 
+    (*m)[kXPh][kXPh] =   (*m)[kX][kX]*(*m)[kPh][kPh]; 
+    (*m)[kXPh][kThY] =   (*m)[kX][kTh]*(*m)[kPh][kY]; 
+    (*m)[kXPh][kThPh] =  (*m)[kX][kTh]*(*m)[kPh][kPh]; 
+    (*m)[kXPh][kYd] =    (*m)[kX][kd]*(*m)[kPh][kY]; 
+    (*m)[kXPh][kPhd] =   (*m)[kX][kd]*(*m)[kPh][kPh]; 
+
+    (*m)[kThY][kXY] =    (*m)[kTh][kX]*(*m)[kY][kY]; 
+    (*m)[kThY][kXPh] =   (*m)[kTh][kX]*(*m)[kY][kPh]; 
+    (*m)[kThY][kThY] =   (*m)[kTh][kTh]*(*m)[kY][kY]; 
+    (*m)[kThY][kThPh] =  (*m)[kTh][kTh]*(*m)[kY][kPh]; 
+    (*m)[kThY][kYd] =    (*m)[kTh][kd]*(*m)[kY][kY]; 
+    (*m)[kThY][kPhd] =   (*m)[kTh][kd]*(*m)[kY][kPh]; 
+
+    (*m)[kThPh][kXY] =    (*m)[kTh][kX]*(*m)[kPh][kY]; 
+    (*m)[kThPh][kXPh] =   (*m)[kTh][kX]*(*m)[kPh][kPh]; 
+    (*m)[kThPh][kThY] =   (*m)[kTh][kTh]*(*m)[kPh][kY]; 
+    (*m)[kThPh][kThPh] =  (*m)[kTh][kTh]*(*m)[kPh][kPh]; 
+    (*m)[kThPh][kYd] =    (*m)[kTh][kd]*(*m)[kPh][kY]; 
+    (*m)[kThPh][kPhd] =   (*m)[kTh][kd]*(*m)[kPh][kPh]; 
+
+    (*m)[kYd][kXY] =    (*m)[kd][kX]*(*m)[kY][kY]; 
+    (*m)[kYd][kXPh] =   (*m)[kd][kX]*(*m)[kY][kPh]; 
+    (*m)[kYd][kThY] =   (*m)[kd][kTh]*(*m)[kY][kY]; 
+    (*m)[kYd][kThPh] =  (*m)[kd][kTh]*(*m)[kY][kPh]; 
+    (*m)[kYd][kYd] =    (*m)[kd][kd]*(*m)[kY][kY]; 
+    (*m)[kYd][kPhd] =   (*m)[kd][kd]*(*m)[kY][kPh]; 
+
+    (*m)[kPhd][kXY] =    (*m)[kd][kX]*(*m)[kPh][kY]; 
+    (*m)[kPhd][kXPh] =   (*m)[kd][kX]*(*m)[kPh][kPh]; 
+    (*m)[kPhd][kThY] =   (*m)[kd][kTh]*(*m)[kPh][kY]; 
+    (*m)[kPhd][kThPh] =  (*m)[kd][kTh]*(*m)[kPh][kPh]; 
+    (*m)[kPhd][kYd] =    (*m)[kd][kd]*(*m)[kPh][kY]; 
+    (*m)[kPhd][kPhd] =   (*m)[kd][kd]*(*m)[kPh][kPh]; 
+}
 
 
 void THRSTrans::fillvector(TVectorD &v){
