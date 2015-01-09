@@ -12,6 +12,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 
     TMatrixD res = *(trans->GetTransport());
 
+    /*
     chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
 //    chi2 += 1.0/pow( res[THRSTrans::kX][THRSTrans::kd]/res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be maximized
 //
@@ -19,7 +20,12 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 
     chi2 += 10*pow(res[THRSTrans::kY][THRSTrans::kY] + 0.4 , 2.0);  // This should be zero
     chi2 += 10*pow(res[THRSTrans::kPh][THRSTrans::kPh] + 0.78 , 2.0);  // This should be zero
+    */
 
+    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be zero
+    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
+    chi2 += pow(res[THRSTrans::kY][THRSTrans::kY], 2.0);  // This should be zero
+    chi2 += pow(res[THRSTrans::kY][THRSTrans::kPh], 2.0);  // This should be zero
 
     // Maximize specified acceptance
     int i;
@@ -80,7 +86,8 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 void hrstrans3(){
 
     /*
-    THRSTrans *trans = new THRSTrans( .2058, -0.143, -0.138, 0.02 );
+    //THRSTrans *trans = new THRSTrans( .2058, -0.143, -0.138, 0.02 );
+    THRSTrans *trans = new THRSTrans( .1258, -0.143, -0.118, 0.02 );
     trans->ShowOutput();
     return;
     */
@@ -95,7 +102,9 @@ void hrstrans3(){
     Double_t vstart[4] = {
 //        0.191, -0.130, -0.137, 0.019465 };
 //        0.251, -0.180, -0.18, 0.0 };
+    // Standard tune?
     0.183122, -0.140606, -0.136879, 0.02 };
+    //PREX Tune
 
     Double_t step[4] = {0.01 , 0.01 , 0.01, 0.0};
 
@@ -107,7 +116,7 @@ void hrstrans3(){
 
     arglist[0] = 5000;
     arglist[1] = 1.;
-    gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
+    gMinuit->mnexcm("SIMPLEX", arglist ,2,ierflg);
     Double_t amin,edm,errdef;
     Int_t nvpar,nparx,icstat;
     gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);

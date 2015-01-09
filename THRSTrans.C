@@ -15,12 +15,62 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps ):
         TH1::AddDirectory(kFALSE);
         int i,j;
 
-        double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57, 1.16 };
+        double th0 = 5.0*3.14159/180; // PREX central angle
+        double th1 = 12.5*3.14159/180; // HRS angle
+
+        double l_sept = 1.0; // GUESS - need to look up
+
+        double sept_rho = (l_sept/cos(th0))/
+            ( sin(th1-th0) - sin(th0) + cos(th1-th0)*sin(th0) );
+
+        // Septum center is 1.7538 downstream of target
+
+        double sept_face = 1.7538 - l_sept/2;
+        double sept_exit = 1.7538 + l_sept/2;
+        double Q1_z = 2.3956;// From survey +
+        double Q1coll_to_bore = 0.3 ; //  collimator to bore GUESS - need to look up
+
+        double sept_exit_to_q1 = (Q1_z-sept_exit)/cos(th1);
+
+//        double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57, 1.16 };
+        double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.16 };
+
         double q_l[3] = {0.9, 1.8, 1.8};
         double apps[3] = {0.3, 0.6, 0.6};
 
-        nelm = 9;
+        nelm = 15;
 
+        // Septum tune
+        chain[0] = makedrift( dr_l[0] );
+        chain[1] = swapxy(-1.0);
+        chain[2] = makedip( (th1-th0)*180/3.14159, sept_rho, 0, -th0*180/3.14159, th1*180/3.14159, 0.0);
+        chain[3] = swapxy();
+        chain[4] = makedrift( dr_l[1] );
+        chain[5] = makedrift( dr_l[2] );
+
+        chain[6] = makequad( Bq1, apps[0], q_l[0] );
+        chain[7] = makedrift( dr_l[3] );
+        chain[8] = makequad( Bq2, apps[1], q_l[1] );
+        chain[9] = makedrift( dr_l[4] );
+        chain[10] = makedip( 45.0, 8.4, -1.25, -30.0, -30.0, psi );
+        chain[11] = makedrift( dr_l[5] );
+        chain[12] = makequad( Bq3, apps[2], q_l[2] );
+        chain[13] = makedrift( dr_l[6] );
+        chain[14] = makedrift( dr_l[7] );
+
+
+        double lchain[20] = {
+            dr_l[0], 0.0, sept_rho*(th1-th0), 0.0,
+            dr_l[1], dr_l[2],
+        
+            q_l[0], dr_l[3], q_l[1], dr_l[4],
+            8.4*TMath::Pi()/4, dr_l[5], q_l[2], dr_l[6], dr_l[7]
+        };
+
+
+        /*
+         *  Standard Tune
+        nelm = 9;
         chain[0] = makedrift( dr_l[0] );
         chain[1] = makequad( Bq1, apps[0], q_l[0] );
         chain[2] = makedrift( dr_l[1] );
@@ -35,6 +85,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps ):
             dr_l[0], q_l[0], dr_l[1], q_l[1], dr_l[2],
             8.4*TMath::Pi()/4, dr_l[3], q_l[2], dr_l[4]
         };
+        */
 
 
         larr[0] = 0.0;
@@ -174,6 +225,8 @@ void THRSTrans::DoTransport(){
                 hacc[4][0][i]->Fill(v[kd]);
 
                 // Test acceptance
+                /*
+                   standard
                 switch(i){
                     case 0:
                         if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
@@ -205,6 +258,46 @@ void THRSTrans::DoTransport(){
                             acc[j] = false;
                         }
                     case 7:
+                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            acc[j] = false;
+                        }
+                }
+                */
+
+
+                // Septum
+
+                switch(i){
+                    case 5:
+                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            acc[j] = false;
+                        }
+                    case 6:
+                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            acc[j] = false;
+                        }
+                    case 7:
+                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            acc[j] = false;
+                        }
+                    case 8:
+                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            acc[j] = false;
+                        }
+
+                    case 9:
+                        if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
+                            acc[j] = false;
+                        }
+                    case 10:
+                        if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
+                            acc[j] = false;
+                        }
+                    case 11:
+                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            acc[j] = false;
+                        }
+                    case 12:
                         if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
                             acc[j] = false;
                         }
@@ -342,7 +435,7 @@ TMatrixD *THRSTrans::makequad( double B0, double a, double l   ){
 
     if( B0 > 0 ){
         (*m)[kX][kX]   = cos(kq*l);
-        (*m)[kX][kTh]  = sin(kq*l);
+        (*m)[kX][kTh]  = sin(kq*l)/kq;
         (*m)[kTh][kX]  = -kq*sin(kq*l);
         (*m)[kTh][kTh] = cos(kq*l);
 
@@ -408,8 +501,9 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     double ky2 = n*h*h;
 
 
-    double kx = sqrt(kx2);
-    double ky = sqrt(-ky2);
+    double kx = sqrt(fabs(kx2));
+    double ky = sqrt(fabs(ky2));
+
 
     double l = theta*rho*3.14159/180;
 
@@ -479,16 +573,43 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     //   Main dipole field
     TMatrixD *mdip = new TMatrixD(20,20);
 
-    double cxt = cos(kx*l);
-    double sxt = sin(kx*l)/kx;
-    double cpxt = -kx2*sxt;
-    double spxt = cos(kx*l);
-    double dxt = h*(1.0-cxt)/kx2;
-    double dpxt = h*sxt;
-    double cyt = cosh(ky*l);
-    double syt = sinh(ky*l)/ky;
-    double cpyt = -ky2*syt;
-    double spyt = cyt;
+    double cxt, sxt, cpxt, spxt, dxt, dpxt, cyt, syt;
+    double cpyt, spyt;
+
+    if( kx2 > 0 ){
+        cxt = cos(kx*l);
+        sxt = sin(kx*l)/kx;
+    } else {
+        if( kx > 0 ){
+            cxt = cosh(kx*l);
+            sxt = sinh(kx*l)/kx;
+        } else {
+            cxt = 1.0;
+            sxt = l;
+        }
+    }
+
+    if( ky2 > 0 ){
+        cyt = cos(ky*l);
+        syt = sin(ky*l)/ky;
+    } else {
+        if( ky > 0 ){
+            cyt = cosh(ky*l);
+            syt = sinh(ky*l)/ky;
+        } else {
+            cyt = 1.0;
+            syt = l;
+        }
+    }
+
+    cpxt = -kx2*sxt;
+    spxt = cxt;
+   
+    cpyt = -ky2*syt;
+    spyt = cyt;
+
+    dxt = h*(1.0-cxt)/kx2;
+    dpxt = h*sxt;
 
     double I10 = dxt/h;
     double I11 = 0.5*l*dxt;
@@ -514,14 +635,19 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     double I266 = h*h*(sxt/3.0 + 2.0*sxt*cxt/3.0 - l*cxt)/kx2/kx2;
 
     double I33 = 0.5*l*syt;
-    double I34 = 0.5*(syt - l*cyt)/ky2;
+    double I34;
+    if( fabs(ky2)<1e-5 ){
+        I34 = 0.5*l*l*l;
+    } else {
+        I34 = 0.5*(syt - l*cyt)/ky2;
+    }
 
     double I313 = (kx2*cyt*dxt/h - 2.0*ky2*sxt*syt)/(kx2 - 4.0*ky2);
     double I314 = (2.0*sxt*cyt - syt*(1.0+cxt))/(kx2 - 4.0*ky2);
     double I323 = (2.0*ky2*syt*(1.0+cxt)/kx2 - sxt*cyt)/(kx2 - 4.0*ky2) +syt/kx2;
     double I324 = ( 2.0*cyt*dxt/h - sxt*syt )/(kx2 - 4*ky2);
     double I336 = h*(0.5*l*cyt - ( cyt*(1.0-cxt) - 2.0*ky2*sxt*syt)/(kx2 - 4.0*ky2))/kx2;
-    double I346 = h*( 0.5*(syt-l*cyt)/ky2 - (2.0*sxt*cyt - syt*(1.0+cxt))/(kx2 - 4.0*ky2) );
+    double I346 = h*( I34 - (2.0*sxt*cyt - syt*(1.0+cxt))/(kx2 - 4.0*ky2) );
     
     double I43 = 0.5*(syt + l*cyt);
     double I44 = I33;
@@ -560,6 +686,7 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
 
     (*mdip)[kTh][kd2] = -h*I20 + (2.0-n)*h*h*I26 + (2.0*n-1)*h*h*h*I266 + 0.5*h*h*h*I222 - h*dxt*dpxt;
     (*mdip)[kTh][kPh2] = -0.5*h*I20;
+
 
     (*mdip)[kY][kY] = cyt;
     (*mdip)[kY][kPh] = syt;
