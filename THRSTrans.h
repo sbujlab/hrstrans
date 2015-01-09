@@ -7,7 +7,9 @@ class TGraph;
 
 class THRSTrans {
     public:
-    THRSTrans( double, double, double, double );
+    enum tune_t {kStd, kPREX };
+
+    THRSTrans( double, double, double, double, tune_t tune = kStd );
     ~THRSTrans();
 
     TMatrixD *swapxy(double sign = 1.0);
@@ -31,6 +33,8 @@ class THRSTrans {
     TGraph *GetDpAcc(){ return gacc[4][0]; }
 
     private:
+        tune_t fTune;
+
         double Bq1, Bq2, Bq3,psi;
         TMatrixD *trans[20], *chain[20];
 

@@ -10,11 +10,54 @@
 #include "TVectorD.h"
 
 
-THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps ):
-    Bq1(bq1),Bq2(bq2),Bq3(bq3),psi(ps) {
+THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps, tune_t tune ):
+    Bq1(bq1),Bq2(bq2),Bq3(bq3),psi(ps),fTune(tune) {
         TH1::AddDirectory(kFALSE);
         int i,j;
 
+        double q_l[3] = {0.9, 1.8, 1.8};
+        double apps[3] = {0.3, 0.6, 0.6};
+
+        double lchain[20];
+        char pname[20][255];
+
+        ///////////////////////////////////////////////////////////////////////////////////////
+
+        if( fTune == kStd ){
+            double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57, 1.16 };
+
+            //  Standard Tune
+                nelm = 9;
+            chain[0] = makedrift( dr_l[0] );
+            chain[1] = makequad( Bq1, apps[0], q_l[0] );
+            chain[2] = makedrift( dr_l[1] );
+            chain[3] = makequad( Bq2, apps[1], q_l[1] );
+            chain[4] = makedrift( dr_l[2] );
+            chain[5] = makedip( 45.0, 8.4, -1.25, -30.0, -30.0, psi );
+            chain[6] = makedrift( dr_l[3] );
+            chain[7] = makequad( Bq3, apps[2], q_l[2] );
+            chain[8] = makedrift( dr_l[4] );
+
+            double thischain[20] = {
+                dr_l[0], q_l[0], dr_l[1], q_l[1], dr_l[2],
+                8.4*TMath::Pi()/4, dr_l[3], q_l[2], dr_l[4]
+            };
+
+
+
+            char thisname[20][255] = { "Origin",
+                "Q1 ent", "Q1 ext", "Q2 ent", "Q2 ext", "Dip ent", "Dip ext",
+                "Q3 ent", "Q3 ext", "Focal Plane"
+            };
+
+            for( i = 0; i < 20; i++){
+                lchain[i] = thischain[i];
+                strcpy(pname[i], thisname[i]);
+            }
+
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////
         double th0 = 5.0*3.14159/180; // PREX central angle
         double th1 = 12.5*3.14159/180; // HRS angle
 
@@ -32,60 +75,52 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps ):
 
         double sept_exit_to_q1 = (Q1_z-sept_exit)/cos(th1);
 
-//        double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57, 1.16 };
-        double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.16 };
+        if( fTune == kPREX ){
+            nelm = 15;
+            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.16 };
 
-        double q_l[3] = {0.9, 1.8, 1.8};
-        double apps[3] = {0.3, 0.6, 0.6};
+            // Septum tune
+            chain[0] = makedrift( dr_l[0] );
+            chain[1] = swapxy(-1.0);
+            chain[2] = makedip( (th1-th0)*180/3.14159, sept_rho, 0, -th0*180/3.14159, th1*180/3.14159, 0.0);
+            chain[3] = swapxy();
+            chain[4] = makedrift( dr_l[1] );
+            chain[5] = makedrift( dr_l[2] );
 
-        nelm = 15;
-
-        // Septum tune
-        chain[0] = makedrift( dr_l[0] );
-        chain[1] = swapxy(-1.0);
-        chain[2] = makedip( (th1-th0)*180/3.14159, sept_rho, 0, -th0*180/3.14159, th1*180/3.14159, 0.0);
-        chain[3] = swapxy();
-        chain[4] = makedrift( dr_l[1] );
-        chain[5] = makedrift( dr_l[2] );
-
-        chain[6] = makequad( Bq1, apps[0], q_l[0] );
-        chain[7] = makedrift( dr_l[3] );
-        chain[8] = makequad( Bq2, apps[1], q_l[1] );
-        chain[9] = makedrift( dr_l[4] );
-        chain[10] = makedip( 45.0, 8.4, -1.25, -30.0, -30.0, psi );
-        chain[11] = makedrift( dr_l[5] );
-        chain[12] = makequad( Bq3, apps[2], q_l[2] );
-        chain[13] = makedrift( dr_l[6] );
-        chain[14] = makedrift( dr_l[7] );
+            chain[6] = makequad( Bq1, apps[0], q_l[0] );
+            chain[7] = makedrift( dr_l[3] );
+            chain[8] = makequad( Bq2, apps[1], q_l[1] );
+            chain[9] = makedrift( dr_l[4] );
+            chain[10] = makedip( 45.0, 8.4, -1.25, -30.0, -30.0, psi );
+            chain[11] = makedrift( dr_l[5] );
+            chain[12] = makequad( Bq3, apps[2], q_l[2] );
+            chain[13] = makedrift( dr_l[6] );
+            chain[14] = makedrift( dr_l[7] );
 
 
-        double lchain[20] = {
-            dr_l[0], 0.0, sept_rho*(th1-th0), 0.0,
-            dr_l[1], dr_l[2],
-        
-            q_l[0], dr_l[3], q_l[1], dr_l[4],
-            8.4*TMath::Pi()/4, dr_l[5], q_l[2], dr_l[6], dr_l[7]
-        };
+            double thischain[20] = {
+                dr_l[0], 0.0, sept_rho*(th1-th0), 0.0,
+                dr_l[1], dr_l[2],
+
+                q_l[0], dr_l[3], q_l[1], dr_l[4],
+                8.4*TMath::Pi()/4, dr_l[5], q_l[2], dr_l[6], dr_l[7]
+            };
+
+            char thisname[20][255] = { "Origin", "Septum Ent", "Rot 1", "Rot 2", "Septum Ext",
+                "Q1 Coll",
+                "Q1 ent", "Q1 ext", "Q2 ent", "Q2 ext", "Dip ent", "Dip ext",
+                "Q3 ent", "Q3 ext", "Focal Plane"
+            };
+
+            for( i = 0; i < 20; i++){
+                lchain[i] = thischain[i];
+                strcpy(pname[i], thisname[i]);
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////
 
 
-        /*
-         *  Standard Tune
-        nelm = 9;
-        chain[0] = makedrift( dr_l[0] );
-        chain[1] = makequad( Bq1, apps[0], q_l[0] );
-        chain[2] = makedrift( dr_l[1] );
-        chain[3] = makequad( Bq2, apps[1], q_l[1] );
-        chain[4] = makedrift( dr_l[2] );
-        chain[5] = makedip( 45.0, 8.4, -1.25, -30.0, -30.0, psi );
-        chain[6] = makedrift( dr_l[3] );
-        chain[7] = makequad( Bq3, apps[2], q_l[2] );
-        chain[8] = makedrift( dr_l[4] );
-
-        double lchain[20] = {
-            dr_l[0], q_l[0], dr_l[1], q_l[1], dr_l[2],
-            8.4*TMath::Pi()/4, dr_l[3], q_l[2], dr_l[4]
-        };
-        */
 
 
         larr[0] = 0.0;
@@ -105,10 +140,6 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps ):
             acc[i] = true;
         }
 
-        char pname[20][255] = { "Origin",
-            "Q1 ent", "Q1 ext", "Q2 ent", "Q2 ext", "Dip ent", "Dip ext",
-            "Q3 ent", "Q3 ext", "Focal Plane"
-        };
 
         nbin = 40;
 
@@ -225,82 +256,85 @@ void THRSTrans::DoTransport(){
                 hacc[4][0][i]->Fill(v[kd]);
 
                 // Test acceptance
-                /*
-                   standard
-                switch(i){
-                    case 0:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
-                            acc[j] = false;
-                        }
-                    case 1:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
-                            acc[j] = false;
-                        }
-                    case 2:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
-                            acc[j] = false;
-                        }
-                    case 3:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
-                            acc[j] = false;
-                        }
+                if( fTune = kStd ){
+                    //standard
+                    switch(i){
+                        case 0:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                                acc[j] = false;
+                            }
+                        case 1:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                                acc[j] = false;
+                            }
+                        case 2:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                                acc[j] = false;
+                            }
+                        case 3:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                                acc[j] = false;
+                            }
 
-                    case 4:
-                        if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
-                            acc[j] = false;
-                        }
-                    case 5:
-                        if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
-                            acc[j] = false;
-                        }
-                    case 6:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
-                            acc[j] = false;
-                        }
-                    case 7:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
-                            acc[j] = false;
-                        }
+                        case 4:
+                            if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
+                                acc[j] = false;
+                            }
+                        case 5:
+                            if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
+                                acc[j] = false;
+                            }
+                        case 6:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                                acc[j] = false;
+                            }
+                        case 7:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                                acc[j] = false;
+                            }
+                    }
                 }
-                */
+
+                if( fTune == kPREX ){
 
 
-                // Septum
+                    // Septum
 
-                switch(i){
-                    case 5:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
-                            acc[j] = false;
-                        }
-                    case 6:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
-                            acc[j] = false;
-                        }
-                    case 7:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
-                            acc[j] = false;
-                        }
-                    case 8:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
-                            acc[j] = false;
-                        }
+                    switch(i){
+                        case 5:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                                acc[j] = false;
+                            }
+                        case 6:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                                acc[j] = false;
+                            }
+                        case 7:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                                acc[j] = false;
+                            }
+                        case 8:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                                acc[j] = false;
+                            }
 
-                    case 9:
-                        if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
-                            acc[j] = false;
-                        }
-                    case 10:
-                        if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
-                            acc[j] = false;
-                        }
-                    case 11:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
-                            acc[j] = false;
-                        }
-                    case 12:
-                        if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
-                            acc[j] = false;
-                        }
+                        case 9:
+                            if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
+                                acc[j] = false;
+                            }
+                        case 10:
+                            if( fabs(v[kY]) > 0.25/2  || fabs(v[kX])> 0.4  ){
+                                acc[j] = false;
+                            }
+                        case 11:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                                acc[j] = false;
+                            }
+                        case 12:
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                                acc[j] = false;
+                            }
+                    }
                 }
             }
         }
@@ -773,80 +807,6 @@ TMatrixD *THRSTrans::swapxy(double sign){
     return m;
 }
 
-
-    (*m)[kd2][kX2] =    (*m)[kd][kX]*(*m)[kd][kX]; 
-    (*m)[kd2][kXTh] =   (*m)[kd][kX]*(*m)[kd][kTh] +
-                            (*m)[kd][kTh]*(*m)[kd][kX]; 
-    (*m)[kd2][kXd] =    (*m)[kd][kX]*(*m)[kd][kd] +
-                            (*m)[kd][kd]*(*m)[kd][kX]; 
-    (*m)[kd2][kTh2] =   (*m)[kd][kTh]*(*m)[kd][kTh] +
-                            (*m)[kd][kTh]*(*m)[kd][kTh]; 
-    (*m)[kd2][kThd] =   (*m)[kd][kTh]*(*m)[kd][kd] +
-                            (*m)[kd][kd]*(*m)[kd][kTh]; 
-    (*m)[kd2][kd2] =    (*m)[kd][kd]*(*m)[kd][kd] +
-                            (*m)[kd][kd]*(*m)[kd][kd]; 
-
-    (*m)[kY2][kY2] =    (*m)[kY][kY]*(*m)[kY][kY]; 
-    (*m)[kY2][kYPh] =   (*m)[kY][kY]*(*m)[kY][kPh] +
-                            (*m)[kY][kPh]*(*m)[kY][kY]; 
-    (*m)[kY2][kPh2] =   (*m)[kY][kPh]*(*m)[kY][kPh] +
-                            (*m)[kY][kPh]*(*m)[kY][kPh]; 
-
-    (*m)[kYPh][kY2] =   (*m)[kY][kY]*(*m)[kPh][kY]; 
-    (*m)[kYPh][kYPh] =  (*m)[kY][kY]*(*m)[kPh][kPh] +
-                            (*m)[kY][kPh]*(*m)[kPh][kY]; 
-    (*m)[kYPh][kPh2] =  (*m)[kY][kPh]*(*m)[kPh][kPh] +
-                            (*m)[kY][kPh]*(*m)[kPh][kPh]; 
-
-
-    (*m)[kPh2][kY2] =   (*m)[kPh][kY]*(*m)[kPh][kY]; 
-    (*m)[kPh2][kYPh] =  (*m)[kPh][kY]*(*m)[kPh][kPh] +
-                            (*m)[kPh][kPh]*(*m)[kPh][kY]; 
-    (*m)[kPh2][kPh2] =  (*m)[kPh][kPh]*(*m)[kPh][kPh] +
-                            (*m)[kPh][kPh]*(*m)[kPh][kPh]; 
-
-    (*m)[kXY][kXY] =    (*m)[kX][kX]*(*m)[kY][kY]; 
-    (*m)[kXY][kXPh] =   (*m)[kX][kX]*(*m)[kY][kPh]; 
-    (*m)[kXY][kThY] =   (*m)[kX][kTh]*(*m)[kY][kY]; 
-    (*m)[kXY][kThPh] =  (*m)[kX][kTh]*(*m)[kY][kPh]; 
-    (*m)[kXY][kYd] =    (*m)[kX][kd]*(*m)[kY][kY]; 
-    (*m)[kXY][kPhd] =   (*m)[kX][kd]*(*m)[kY][kPh]; 
-
-    (*m)[kXPh][kXY] =    (*m)[kX][kX]*(*m)[kPh][kY]; 
-    (*m)[kXPh][kXPh] =   (*m)[kX][kX]*(*m)[kPh][kPh]; 
-    (*m)[kXPh][kThY] =   (*m)[kX][kTh]*(*m)[kPh][kY]; 
-    (*m)[kXPh][kThPh] =  (*m)[kX][kTh]*(*m)[kPh][kPh]; 
-    (*m)[kXPh][kYd] =    (*m)[kX][kd]*(*m)[kPh][kY]; 
-    (*m)[kXPh][kPhd] =   (*m)[kX][kd]*(*m)[kPh][kPh]; 
-
-    (*m)[kThY][kXY] =    (*m)[kTh][kX]*(*m)[kY][kY]; 
-    (*m)[kThY][kXPh] =   (*m)[kTh][kX]*(*m)[kY][kPh]; 
-    (*m)[kThY][kThY] =   (*m)[kTh][kTh]*(*m)[kY][kY]; 
-    (*m)[kThY][kThPh] =  (*m)[kTh][kTh]*(*m)[kY][kPh]; 
-    (*m)[kThY][kYd] =    (*m)[kTh][kd]*(*m)[kY][kY]; 
-    (*m)[kThY][kPhd] =   (*m)[kTh][kd]*(*m)[kY][kPh]; 
-
-    (*m)[kThPh][kXY] =    (*m)[kTh][kX]*(*m)[kPh][kY]; 
-    (*m)[kThPh][kXPh] =   (*m)[kTh][kX]*(*m)[kPh][kPh]; 
-    (*m)[kThPh][kThY] =   (*m)[kTh][kTh]*(*m)[kPh][kY]; 
-    (*m)[kThPh][kThPh] =  (*m)[kTh][kTh]*(*m)[kPh][kPh]; 
-    (*m)[kThPh][kYd] =    (*m)[kTh][kd]*(*m)[kPh][kY]; 
-    (*m)[kThPh][kPhd] =   (*m)[kTh][kd]*(*m)[kPh][kPh]; 
-
-    (*m)[kYd][kXY] =    (*m)[kd][kX]*(*m)[kY][kY]; 
-    (*m)[kYd][kXPh] =   (*m)[kd][kX]*(*m)[kY][kPh]; 
-    (*m)[kYd][kThY] =   (*m)[kd][kTh]*(*m)[kY][kY]; 
-    (*m)[kYd][kThPh] =  (*m)[kd][kTh]*(*m)[kY][kPh]; 
-    (*m)[kYd][kYd] =    (*m)[kd][kd]*(*m)[kY][kY]; 
-    (*m)[kYd][kPhd] =   (*m)[kd][kd]*(*m)[kY][kPh]; 
-
-    (*m)[kPhd][kXY] =    (*m)[kd][kX]*(*m)[kPh][kY]; 
-    (*m)[kPhd][kXPh] =   (*m)[kd][kX]*(*m)[kPh][kPh]; 
-    (*m)[kPhd][kThY] =   (*m)[kd][kTh]*(*m)[kPh][kY]; 
-    (*m)[kPhd][kThPh] =  (*m)[kd][kTh]*(*m)[kPh][kPh]; 
-    (*m)[kPhd][kYd] =    (*m)[kd][kd]*(*m)[kPh][kY]; 
-    (*m)[kPhd][kPhd] =   (*m)[kd][kd]*(*m)[kPh][kPh]; 
-}
 
 
 void THRSTrans::fillvector(TVectorD &v){
