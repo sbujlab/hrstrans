@@ -24,7 +24,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps, tune_t tune 
         ///////////////////////////////////////////////////////////////////////////////////////
 
         if( fTune == kStd ){
-            double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57, 1.16 };
+            double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57};
 
             //  Standard Tune
                 nelm = 9;
@@ -77,7 +77,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps, tune_t tune 
 
         if( fTune == kPREX ){
             nelm = 15;
-            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.16 };
+            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
 
             // Septum tune
             chain[0] = makedrift( dr_l[0] );
@@ -129,7 +129,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double ps, tune_t tune 
         }
 
 
-        ntrk = 1000;
+        ntrk = 100000;
         gRandom->SetSeed(100);
         for( i = 0; i < ntrk; i++ ){
             ytg[i]  = gRandom->Uniform(-0.2/2.0, 0.2/2.0);

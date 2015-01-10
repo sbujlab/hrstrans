@@ -18,8 +18,8 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
     chi2 += pow(res[THRSTrans::kTh][THRSTrans::kTh] + 0.40, 2.0); 
     */
 
-    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
-    chi2 += 1.0/pow( res[THRSTrans::kX][THRSTrans::kd]/res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be maximized
+//    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
+//    chi2 += 1.0/pow( res[THRSTrans::kX][THRSTrans::kd]/res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be maximized
 //
     // Force a couple matrix elements
 
@@ -27,12 +27,8 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 //    chi2 += 10*pow(res[THRSTrans::kPh][THRSTrans::kPh] + 0.78 , 2.0);  // This should be zero
 
     // PREX Criteria
-    /*
-    chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kX], 2.0);  // This should be zero
     chi2 += 1000*pow(res[THRSTrans::kX][THRSTrans::kTh], 2.0);  // This should be zero
-    chi2 += pow(res[THRSTrans::kY][THRSTrans::kY], 2.0);  // This should be zero
-    chi2 += pow(res[THRSTrans::kY][THRSTrans::kPh], 2.0);  // This should be zero
-    */
+    chi2 += 1000*pow(res[THRSTrans::kY][THRSTrans::kPh], 2.0);  // This should be zero
 
     // Maximize specified acceptance
     int i;
@@ -44,9 +40,6 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
             thsum += pow( (trans->GetThAcc()->GetY())[i], 2.0 );
         }
     }
-    if( thsum > 0 ){
-        chi2 += 1.0/thsum;
-    }
 
     double ysum = 0.0;
     // Y
@@ -55,18 +48,12 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
             ysum += pow( (trans->GetYAcc()->GetY())[i], 2.0 );
         }
     }
-    if( ysum > 0 ){
-    chi2 += 1.0/ysum;
-    }
     // Ph 
     double phsum = 0.0;
     for( i = 0; i < trans->GetPhAcc()->GetN(); i++ ){
         if(  fabs( (trans->GetPhAcc()->GetX())[i] ) < 0.014 ){
             phsum += pow( (trans->GetPhAcc()->GetY())[i], 2.0 );
         }
-    }
-    if( phsum > 0 ){
-    chi2 += 1.0/phsum;
     }
     // d
     double dsum = 0.0;
@@ -75,9 +62,21 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
             dsum += pow( (trans->GetDpAcc()->GetY())[i], 2.0 );
         }
     }
+
+    /*
     if( dsum > 0 ){
     chi2 += 1.0/dsum;
     }
+    if( phsum > 0 ){
+    chi2 += 1.0/phsum;
+    }
+    if( ysum > 0 ){
+    chi2 += 1.0/ysum;
+    }
+    if( thsum > 0 ){
+        chi2 += 1.0/thsum;
+    }
+    */
 
 
     f = chi2;
@@ -102,9 +101,11 @@ void hrstrans3(){
     // LeRose Translated Numbers
 //    THRSTrans *trans = new THRSTrans( 0.1861, -0.1415, -0.1375, 2.07500e-02, THRSTrans::kStd);
     // LeRose Translated Numbers, PREX
+    /*
     THRSTrans *trans = new THRSTrans( 0.1356, -0.143, -0.137, 2.07500e-02, THRSTrans::kPREX);
    trans->ShowOutput();
    return;
+   */
 
 
     TMinuit *gMinuit = new TMinuit(4);
@@ -117,7 +118,7 @@ void hrstrans3(){
     Double_t vstart[4] = {
     // Standard tune
     //1.86122e-01, -1.41506e-01, -1.37479e-01, 2.07500e-02 };
-    0.142105, -0.115789, -0.136842, 0.02075 };
+    0.1356, -0.1489, -0.136842, 0.02075 };
     //PREX Tune
 
     Double_t step[4] = {0.001 , 0.001 , 0.001, 0.000};
