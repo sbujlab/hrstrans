@@ -7,7 +7,7 @@ import re, sys
 #prefix = 'r12p5'
 
 filename = 'prex_forward.f'
-planes = [ 'sen', 'sex','col', 'q1ex', 'fp' ]
+planes = [ 'sen', 'sex','col', 'q1ex', 'q2ex', 'den', 'q3en', 'q3ex', 'fp' ]
 prefix = 'sp'
 
 
