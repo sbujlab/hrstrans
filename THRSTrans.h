@@ -7,7 +7,7 @@ class TGraph;
 
 class THRSTrans {
     public:
-    enum tune_t {kStd, kPREX, kAPEX };
+    enum tune_t {kStd, kPREX, kCREX, kAPEX };
 
     THRSTrans( double, double, double, double, double, tune_t tune = kStd, int n = 100000 );
     ~THRSTrans();

@@ -7,7 +7,8 @@
 //  Try to fit to all intermediate matrices
 
 void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
-    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kPREX, 50000);
+//    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kPREX, 50000);
+    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kCREX, 50000);
 
 
     TMatrixD tovdc= *(trans->GetTransport(14));
@@ -160,7 +161,7 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
     }
 
 
-    chi2 += 100*pow(tofp[THRSTrans::kX][THRSTrans::kTh], 2.0);  
+    chi2 += 500*pow(tofp[THRSTrans::kX][THRSTrans::kTh], 2.0);  
     chi2 += 100*pow(tofp[THRSTrans::kY][THRSTrans::kPh], 2.0);  
 
     f = chi2;
@@ -176,10 +177,16 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 void hrstrans4(){
 
     // LeRose SNAKE scaled by 1.4 (in agreement with standard tune)
-    THRSTrans *trans = new THRSTrans( 0.1288, -0.1393, -0.1736, 0.050178, 0.037056, THRSTrans::kPREX);
+    //THRSTrans *trans = new THRSTrans( 0.1288, -0.1393, -0.1736, 0.050178, 0.037056, THRSTrans::kPREX);
 
     // Fit to LeRose
 //    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kPREX);
+//    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kCREX);
+
+    // Optimization for CREX
+    THRSTrans *trans = new THRSTrans(0.083238, -0.128356, -0.172545, 0.050178, 0.037056, THRSTrans::kCREX);
+
+
 
     printf("LeRose focal plane\n");
     trans->ShowOutput(14, 0.75);
@@ -226,7 +233,8 @@ void hrstrans4(){
     gMinuit->GetParameter(1, q2, e1);
     gMinuit->GetParameter(2, q3, e1);
 
-    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kPREX);
+//    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kPREX);
+    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kCREX);
 
     /*
     result->ShowOutput(9);

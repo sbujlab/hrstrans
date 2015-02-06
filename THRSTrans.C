@@ -63,6 +63,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
         ///////////////////////////////////////////////////////////////////////////////////////
         double th0 = -5.0*3.14159/180; // PREX central angle
         double th0_apex = -6.0*3.14159/180; // APEX central angle
+        double th0_crex = -4.0*3.14159/180; // APEX central angle
         double th1 = -12.5*3.14159/180; // HRS angle
 
         double l_sept = 0.95; //  Matches SNAKE
@@ -74,14 +75,20 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
 
         double sept_face = 1.7538 - l_sept/2;
         double sept_exit = 1.7538 + l_sept/2;
+
         double sept_face_apex = 1.46 - l_sept/2;
         double sept_exit_apex = 1.46 + l_sept/2;
+
+        double sept_face_crex = 2.0538 - l_sept/2;
+        double sept_exit_crex = 2.0538 + l_sept/2;
+
         double Q1_z = 2.3956;// From survey +
         double Q1coll_to_bore = 0.31 ; //  From HRS survey assuming spectrometers at 12.5 deg
                                        //  and survey
 
         double sept_exit_to_q1 = (Q1_z-sept_exit)/cos(th1);
         double sept_exit_to_q1_apex = (Q1_z-sept_exit_apex)/cos(th1);
+        double sept_exit_to_q1_crex = (Q1_z-sept_exit_crex)/cos(th1);
 
         sept_K1 = 0.5;
         sept_K2 = 0.5;
@@ -128,6 +135,51 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
                 strcpy(pname[i], thisname[i]);
             }
         }
+
+        if( fTune == kCREX ){
+            nelm = 15;
+            double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+
+            // Septum tune
+            chain[0] = makedrift( dr_l[0] );
+            chain[1] = swapxy();
+            chain[2] = makedip( (th1-th0_crex)*180/3.14159, sept_rho, 0, -th0*180/3.14159, th1*180/3.14159, sept_K1, sept_K2);
+            chain[3] = swapxy(-1.0);
+            chain[4] = makedrift( dr_l[1] );
+            chain[5] = makedrift( dr_l[2] );
+
+            chain[6] = makequad( Bq1, apps[0], q_l[0] );
+            chain[7] = makedrift( dr_l[3] );
+            chain[8] = makequad( Bq2, apps[1], q_l[1] );
+            chain[9] = makedrift( dr_l[4] );
+            chain[10] = makedip( 45.0, 8.4, -1.25, -30.0, -30.0, K1, K2 );
+            chain[11] = makedrift( dr_l[5] );
+            chain[12] = makequad( Bq3, apps[2], q_l[2] );
+            chain[13] = makedrift( dr_l[6] );
+            chain[14] = makedrift( dr_l[7] );
+
+
+            double thischain[20] = {
+                dr_l[0], 0.0, sept_rho*(th1-th0), 0.0,
+                dr_l[1], dr_l[2],
+
+                q_l[0], dr_l[3], q_l[1], dr_l[4],
+                8.4*TMath::Pi()/4, dr_l[5], q_l[2], dr_l[6], dr_l[7]
+            };
+
+            char thisname[20][255] = { "Origin", "Septum Ent", "Rot 1", "Rot 2", "Septum Ext",
+                "Q1 Coll",
+                "Q1 ent", "Q1 ext", "Q2 ent", "Q2 ext", "Dip ent", "Dip ext",
+                "Q3 ent", "Q3 ext", "Focal Plane"
+            };
+
+            for( i = 0; i < 20; i++){
+                lchain[i] = thischain[i];
+                strcpy(pname[i], thisname[i]);
+            }
+        }
+
+
 
         if( fTune == kAPEX ){
             nelm = 14;
@@ -386,7 +438,7 @@ void THRSTrans::DoTransport(){
                     }
                 }
 
-                if( fTune == kPREX ){
+                if( fTune == kPREX || fTune == kCREX ){
 
 
                     // Septum
