@@ -7,8 +7,8 @@
 //  Try to fit to all intermediate matrices
 
 void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
-//    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kPREX, 50000);
-    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kCREX, 50000);
+    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kPREX, 50000);
+//    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kCREX, 50000);
 
 
     TMatrixD tovdc= *(trans->GetTransport(14));
@@ -183,8 +183,10 @@ void hrstrans4(){
 //    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kPREX);
 //    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kCREX);
 
+    /*
     // Optimization for CREX
-    THRSTrans *trans = new THRSTrans(0.083238, -0.128356, -0.172545, 0.050178, 0.037056, THRSTrans::kCREX);
+    THRSTrans *trans = new THRSTrans(0.080742, -0.127490, -0.172573, 0.050178, 0.037056, THRSTrans::kCREX);
+
 
 
 
@@ -199,6 +201,7 @@ void hrstrans4(){
     trans->ShowFocalLengths();
 
     return;
+    */
 
     TMinuit *gMinuit = new TMinuit(3);
     gMinuit->SetFCN(fcn);
@@ -233,8 +236,8 @@ void hrstrans4(){
     gMinuit->GetParameter(1, q2, e1);
     gMinuit->GetParameter(2, q3, e1);
 
-//    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kPREX);
-    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kCREX);
+    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kPREX);
+//    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kCREX);
 
     /*
     result->ShowOutput(9);

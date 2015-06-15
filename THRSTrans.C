@@ -18,7 +18,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
 
 
 
-        double q_l[3] = {0.9, 1.8, 1.8};
+        double q_l[3] = {0.941, 1.826, 1.827};
         double apps[3] = {0.3, 0.6, 0.6};
 
         double lchain[20];
@@ -27,7 +27,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
         ///////////////////////////////////////////////////////////////////////////////////////
 
         if( fTune == kStd ){
-            double dr_l[6] = {1.59, 1.25, 4.42, 1.50, 3.57};
+            double dr_l[6] = {1.59, 1.172, 4.431, 1.50, 3.452};
 
             //  Standard Tune
             nelm = 9;
@@ -95,7 +95,8 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
 
         if( fTune == kPREX ){
             nelm = 15;
-            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+        //    double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
 
             // Septum tune
             chain[0] = makedrift( dr_l[0] );
@@ -138,7 +139,8 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
 
         if( fTune == kCREX ){
             nelm = 15;
-            double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+//            double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+            double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
 
             // Septum tune
             chain[0] = makedrift( dr_l[0] );
