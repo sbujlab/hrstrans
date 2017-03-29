@@ -1303,6 +1303,31 @@ void THRSTrans::setcrossterms(TMatrixD *m){
     (*m)[kPhd][kPhd] = (*m)[kd][kd]*(*m)[kPh][kPh];
 }
 
+TMatrixD *THRSTrans::GetTransport(int a, int b){
+    int i,j,k,bidx;
+
+    TMatrixD *t[20];
+
+    // Make all the transport matrices for each element
+
+    t[0] = new TMatrixD(20,20);
+    for( j = 0; j < 20; j++ ){
+        for( k = 0; k < 20; k++ ){
+            if( j == k ){
+                (*t[0])[j][k] = 1.0;
+            } else {
+                (*t[0])[j][k] = 0.0;
+            }
+        }
+    }
+
+    for( i = 0; i < (b-a); i++ ){
+        t[i+1] =  new TMatrixD( (*chain[i+a])*(*t[i]) ); 
+    }
+
+    return t[b-a];
+}
+
 
 
 

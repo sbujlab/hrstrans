@@ -28,6 +28,7 @@ class THRSTrans {
 
     TMatrixD *GetTransport(){ return trans[nelm]; }
     TMatrixD *GetTransport(int i){ return trans[i]; }
+    TMatrixD *GetTransport(int i, int j);
     TMatrixD *GetElement(int i){ return chain[i]; }
     TMatrixD *GetOptics(int idx = -1);
 
