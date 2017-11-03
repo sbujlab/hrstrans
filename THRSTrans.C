@@ -9,6 +9,9 @@
 #include "TMath.h"
 #include "TRandom.h"
 #include "TVectorD.h"
+#include <iostream>
+
+using namespace std;
 
 
 THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, tune_t tune, int nt ):
@@ -1196,6 +1199,8 @@ void THRSTrans::fillvector(TVectorD &v){
 }
 
 void THRSTrans::setcrossterms(TMatrixD *m){
+  int ldebug=1;
+  if (ldebug) cout << "setting cross terms "<<endl;
     (*m)[kX2][kX2] = (*m)[kX][kX]*(*m)[kX][kX];
     (*m)[kX2][kXTh] = 2.0*(*m)[kX][kX]*(*m)[kX][kTh];
     (*m)[kX2][kXd] = 2.0*(*m)[kX][kX]*(*m)[kX][kd];

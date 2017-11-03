@@ -25,6 +25,7 @@ class THRSTrans {
     void ShowOutput(int i = -1, double l = 0.0);
     void ShowFocalLengths();
     void ShowAcc();
+    void fillvector(TVectorD &);
 
     TMatrixD *GetTransport(){ return trans[nelm]; }
     TMatrixD *GetTransport(int i){ return trans[i]; }
@@ -79,7 +80,6 @@ class THRSTrans {
         bool acc[100000];
 
         void setcrossterms(TMatrixD *);
-        void fillvector(TVectorD &);
 
          TGraph *gx_th, *gx_x0, *gx_d, *gy_ph, *gy_y0 , *gph_y0, *gph_ph;
 };
