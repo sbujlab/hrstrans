@@ -98,7 +98,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
 
         if( fTune == kPREX ){
             nelm = 15;
-        //    double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+        //    double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.00 };
             double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
 
             // Septum tune
@@ -142,7 +142,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
 
         if( fTune == kCREX ){
             nelm = 15;
-//            double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.43 };
+//            double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.00 };
             double dr_l[8] = {sept_face_crex, sept_exit_to_q1_crex, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
 
             // Septum tune
@@ -1199,7 +1199,7 @@ void THRSTrans::fillvector(TVectorD &v){
 }
 
 void THRSTrans::setcrossterms(TMatrixD *m){
-  int ldebug=1;
+  int ldebug=0;
   if (ldebug) cout << "setting cross terms "<<endl;
     (*m)[kX2][kX2] = (*m)[kX][kX]*(*m)[kX][kX];
     (*m)[kX2][kXTh] = 2.0*(*m)[kX][kX]*(*m)[kX][kTh];
