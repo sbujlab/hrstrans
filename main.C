@@ -20,7 +20,7 @@ using namespace std;
 int main(int argc, char **argv) 
 {
  
-   Int_t debug_out = 0;
+   Int_t debug_out = 2;
 
  // Initialize root and output.  
    TROOT scalana("hrsroot","Hall A spectrometer optics analysis");
@@ -39,7 +39,9 @@ int main(int argc, char **argv)
    Float_t* farray_ntup = new Float_t[nlen+1];  
 // end of ntuple definition
 
-   THRSTrans *trans = new THRSTrans(0.099950, -0.132890, -0.171751, 0.050178, 0.037056, THRSTrans::kPREX);
+   THRSTrans *trans = new THRSTrans(0.096255, -0.131739, -0.170480, 0.050178, 0.037056, THRSTrans::kPREX);
+
+     // new THRSTrans(0.099950, -0.132890, -0.171751, 0.050178, 0.037056, THRSTrans::kPREX);
 
     trans->ShowOutput();
 
@@ -50,7 +52,7 @@ int main(int argc, char **argv)
     (*wS)[THRSTrans::kX][THRSTrans::kTh] = -0.0148;
     (*wS)[THRSTrans::kX][THRSTrans::kY]  = -0.089;
     (*wS)[THRSTrans::kX][THRSTrans::kPh] = 0;
-    (*wS)[THRSTrans::kX][THRSTrans::kd]  = 16.7;
+    (*wS)[THRSTrans::kX][THRSTrans::kd]  = 14.2;
 
     (*wS)[THRSTrans::kTh][THRSTrans::kX]  = -0.309;
     (*wS)[THRSTrans::kTh][THRSTrans::kTh] = -0.401;
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
 
     while (fgets(strin,150,fd) != NULL)  {
 
-      sscanf(strin,"%f %f %f %f %f %f %f %f %f %f",&d1,&d2,&d3,&d4,&d5,&d6,&d7,&d8,&d9,&d10);
+      sscanf(strin,"HRSTR %f %f %f %f %f %f %f %f %f %f",&d1,&d2,&d3,&d4,&d5,&d6,&d7,&d8,&d9,&d10);
 
       transOut[0] = d6;
       transOut[1] = d7;
