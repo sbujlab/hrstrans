@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 
       trans->fillvector(iv);  // add 2nd order
 
-      TMatrixD tofp= *(trans->GetTransport(14));  // At the focal plane, I think
+      TMatrixD tofp= *(trans->GetTransport());  // At the focal plane
 
       v = (tofp)*iv;
 
