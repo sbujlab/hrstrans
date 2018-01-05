@@ -9,6 +9,8 @@
    gStyle->SetLabelSize(0.045,"y");
    gROOT->ForceStyle();
 
+   char strplot[100];
+
    // 0 = hamc vs HRSTRANS
    // 1 = hamc vs LeRose's warmseptum 1st order
 
@@ -34,32 +36,32 @@
      TH2F *h3ph = new TH2F("h3ph","tan(phi) LeRose fcn vs LeRose 1st Order",100,-0.04,0.04,100,-0.04,0.04);
    }
 
-   Float_t zloc = -1.4;
-   char strplot[100];
- 
+// Shift in Z plane between hamc and THRSTrans.  Of course, this should be zero.
+   Float_t zloc = -1.43;
+
    if (which==0) {
-     sprintf(strplot,"outx:hamcx-%f*hamcth>>h2x",zloc);
+     sprintf(strplot,"outx:hamcx+%f*hamcth>>h2x",zloc);
      hrt->Draw(strplot);
-     sprintf(strplot,"outx:hamcx-%f*hamcth>>h3x",zloc);
+     sprintf(strplot,"outx:hamcx+%f*hamcth>>h3x",zloc);
      hrt->Draw(strplot,"wsdp>-0.002");
      hrt->Draw("outth:hamcth>>h2th");
      hrt->Draw("outth:hamcth>>h3th","wsdp>-0.002");
-     sprintf(strplot,"outy:hamcy-%f*hamcph>>h2y",zloc);
+     sprintf(strplot,"outy:hamcy+%f*hamcph>>h2y",zloc);
      hrt->Draw(strplot);
-     sprintf(strplot,"outy:hamcy-%f*hamcph>>h3y",zloc);
+     sprintf(strplot,"outy:hamcy+%f*hamcph>>h3y",zloc);
      hrt->Draw(strplot,"wsdp>-0.002");
      hrt->Draw("outph:hamcph>>h2ph");
      hrt->Draw("outph:hamcph>>h3ph","wsdp>-0.002");
    } else {
-     sprintf(strplot,"hamcx:wsx-%f*wsth>>h2x",zloc);
+     sprintf(strplot,"hamcx:wsx+%f*wsth>>h2x",zloc);
      hrt->Draw(strplot);
-     sprintf(strplot,"hamcx:wsx-%f*wsth>>h3x",zloc);
+     sprintf(strplot,"hamcx:wsx+%f*wsth>>h3x",zloc);
      hrt->Draw(strplot,"wsdp>-0.002");
      hrt->Draw("hamcth:wsth>>h2th");
      hrt->Draw("hamcth:wsth>>h3th","wsdp>-0.002");
-     sprintf(strplot,"hamcy:wsy-%f*wsph>>h2y",zloc);
+     sprintf(strplot,"hamcy:wsy+%f*wsph>>h2y",zloc);
      hrt->Draw(strplot);
-     sprintf(strplot,"hamcy:wsy-%f*wsph>>h3y",zloc);
+     sprintf(strplot,"hamcy:wsy+%f*wsph>>h3y",zloc);
      hrt->Draw(strplot,"wsdp>-0.002");
      hrt->Draw("hamcph:wsph>>h2ph");
      hrt->Draw("hamcph:wsph>>h3ph","wsdp>-0.002");
@@ -77,11 +79,16 @@
 
    h2x->Draw();
    h3x->Draw("same");
+   TLine *tl = new TLine();
+   tl->SetLineColor(4);
+   tl->DrawLine(-1,-1,0.08,0.08);
 
    c1->cd(2);
 
    h2th->Draw();
    h3th->Draw("same");
+   tl->SetLineColor(4);
+   tl->DrawLine(-0.08,-0.08,0.04,0.04);
 
    c1->cd(3);
 
