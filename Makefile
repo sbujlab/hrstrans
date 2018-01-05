@@ -11,7 +11,7 @@ ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --glibs)
 INCLUDES      = -I$(ROOTSYS)/include
 CXX           = $(GCC)
-CXXFLAGS      = -Wall -fno-exceptions -fPIC $(INCLUDES)
+CXXFLAGS      = -Wall -fno-exceptions -fpermissive -std=c++11 -fPIC $(INCLUDES)
 LD            = $(GLD)
 LDFLAGS       = 
 SOFLAGS       = -shared 
