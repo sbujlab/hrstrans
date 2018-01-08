@@ -1,4 +1,5 @@
-# Makefile for standalone test of hrstrans
+# Makefile to produce library libhrstrans.so 
+#
 # R. Michaels, Oct 2017
 
 
@@ -28,13 +29,6 @@ else
 endif
 
 SRC = THRSTrans.C
-
-DEPS = $(SRC:.C=.d)
-DEP  = $(SRC:.C=.d)
-HEAD = $(SRC:.C=.h) 
-OBJS = $(SRC:.C=.o)
-
-install: all
 
 all: libhrstrans.so 
 
