@@ -30,6 +30,9 @@ endif
 
 SRC = THRSTrans.C
 
+HEAD = $(SRC:.C=.h) 
+OBJS = $(SRC:.C=.o)
+
 all: libhrstrans.so 
 
 libhrstrans.so: $(OBJS) $(HEAD)
