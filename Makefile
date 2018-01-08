@@ -11,10 +11,9 @@ ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --glibs)
 INCLUDES      = -I$(ROOTSYS)/include
 CXX           = $(GCC)
-CXXFLAGS      = -Wall -fno-exceptions -fpermissive -std=c++11 -fPIC $(INCLUDES)
+CXXFLAGS      = -fno-exceptions -fpermissive -std=c++11 -fPIC $(INCLUDES)
 LD            = $(GLD)
-LDFLAGS       = 
-SOFLAGS       = -shared 
+SOFLAGS       = -std=c++11  -shared 
 GLIBS         = $(ROOTGLIBS) -L/usr/X11R6/lib -lXpm -lX11 
 LIBS = $(GLIBS) $(ROOTLIBS) $(ROOTGLIBS) /usr/lib64/libg2c.so.0
 
@@ -37,30 +36,18 @@ OBJS = $(SRC:.C=.o)
 
 install: all
 
-all: xhrst libhrstrans.so 
-
-xhrst: $(OBJS) $(SRC) $(HEAD) main.C 
-	rm -f $@
-	$(LD) $(CXXFLAGS) -o $@ main.C $(OBJS) $(ALL_LIBS)
+all: libhrstrans.so 
 
 libhrstrans.so: $(OBJS) $(HEAD)
 	$(CXX) $(SOFLAGS) -O -o libhrstrans.so $(OBJS) $(ALL_LIBS)
 
 clean:
-	rm -f *.o core *Dict* $(PROGS) libhrstrans.so 
+	rm -f *.o core libhrstrans.so 
 
 realclean:  clean
-	rm -f *.d *.tar  *~
+	rm -f *.tar  *~
 
 
 %.o:	%.C
 	$(CXX) $(CXXFLAGS) -c $<
 
-%.d:	%.C 
-	@echo Creating dependencies for $<
-	@$(SHELL) -ec '$(MAKEDEPEND) -MM $(INCLUDES) -c $< \
-                | sed '\''s%^.*\.o%$*\.o%g'\'' \
-                | sed '\''s%\($*\)\.o[ :]*%\1.o $@ : %g'\'' > $@; \
-                [ -s $@ ] || rm -f $@'
-
--include $(DEPS)
