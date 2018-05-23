@@ -884,14 +884,14 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*men)[kY][kY] = 1.0;
     (*men)[kY][kXY] = h*tan(b1)*tan(b1);
 
-    (*men)[kPh][kY] = -h*tan(b1-ps1);
+    (*men)[kPh][kY] = -h*tan(b1-psi1);
     (*men)[kPh][kPh] = 1.0;
 
     (*men)[kPh][kXY] = 2*h*h*n*tan(b1);
     (*men)[kPh][kXPh] = -h*tan(b1)*tan(b1);
     (*men)[kPh][kThY] = -h/(cos(b1)*cos(b1));
 
-    (*men)[kPh][kYd] = h*tan(b1)-h*ps1/(cos(b1-ps1)*cos(b1-ps1));
+    (*men)[kPh][kYd] = h*tan(b1)-h*psi1/(cos(b1-psi1)*cos(b1-psi1));
 
     (*men)[kd][kd]= 1.0;
 
@@ -915,7 +915,7 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*mex)[kY][kY] = 1.0;
     (*mex)[kY][kXY] = -h*tan(b2)*tan(b2);
 
-    (*mex)[kPh][kY] = -h*tan(b2-ps2);
+    (*mex)[kPh][kY] = -h*tan(b2-psi2);
     (*mex)[kPh][kPh] = 1.0;
 
     (*mex)[kPh][kXY] = h*h*(2*n+1.0/(cos(b2)*cos(b2)))*tan(b2);
@@ -923,7 +923,7 @@ TMatrixD *THRSTrans::makedip( double theta, double rho, double n, double beta1, 
     (*mex)[kPh][kXPh] = h*tan(b2)*tan(b2);
     (*mex)[kPh][kThY] = h/(cos(b2)*cos(b2));
 
-    (*mex)[kPh][kYd] = h*tan(b2)-h*ps2/(cos(b2-ps2)*cos(b2-ps2));
+    (*mex)[kPh][kYd] = h*tan(b2)-h*psi2/(cos(b2-psi2)*cos(b2-psi2));
 
     (*mex)[kd][kd] = 1.0;
 
