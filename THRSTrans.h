@@ -8,8 +8,10 @@ class TGraph;
 class THRSTrans {
     public:
     enum tune_t {kStd, kPREX, kCREX, kAPEX };
+    enum arm_t { kLHRS, kRHRS };//RR added arm capabilities
 
-    THRSTrans( double, double, double, double, double, tune_t tune = kStd, int n = 100000 );
+
+    THRSTrans( double, double, double, double, double, double, double, tune_t tune = kStd, arm_t arm = kLHRS, int n = 1000000 );
     ~THRSTrans();
 
     TMatrixD *swapxy(double sign = 1.0);
@@ -32,6 +34,8 @@ class THRSTrans {
     TMatrixD *GetTransport(int i, int j);
     TMatrixD *GetElement(int i){ return chain[i]; }
     TMatrixD *GetOptics(int idx = -1);
+    TMatrixD *GetOpS(int idx = -1);//RR second order optics recon matrix
+
 
     TGraph *GetXAcc(){ return gacc[0][0]; }
     TGraph *GetThAcc(){ return gacc[1][0]; }
@@ -44,6 +48,7 @@ class THRSTrans {
 
     private:
         tune_t fTune;
+        arm_t fArm;
 
         double Bq1, Bq2, Bq3,K1, K2;
         double sept_K1, sept_K2;
@@ -76,10 +81,15 @@ class THRSTrans {
         double fdp_lim;
 
         int ntrk;
-        double ytg[100000], xtg[100000], thtg[100000], phtg[100000], dp[100000];
-        bool acc[100000];
+        double ytg[1000000], xtg[1000000], thtg[1000000], phtg[1000000], dp[1000000];
+        bool acc[1000000];
 
         void setcrossterms(TMatrixD *);
+        void trcs2dcs(TVectorD &, TVectorD &);//RR transport to detector coordinates
+        void trcs2fcs(TVectorD &, TVectorD &, TVectorD &, double, double, double, double, double, double); //RR converts transport to focal plane coordinates, doubles depend on which arm, motivated by looking at the PREX-I transport tensor
+        
+        void sept_mistune(TVectorD &, TVectorD &, TMatrixD *); //RR for septum mistune        
+
 
          TGraph *gx_th, *gx_x0, *gx_d, *gy_ph, *gy_y0 , *gph_y0, *gph_ph;
 };

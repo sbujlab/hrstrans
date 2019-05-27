@@ -14,7 +14,7 @@
 using namespace std;
 
 
-THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, tune_t tune, int nt ):
+THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double S1, double S2, double k1, double k2, tune_t tune, arm_t arm, int nt ):
     Bq1(bq1),Bq2(bq2),Bq3(bq3), K1(k1), K2(k2),fTune(tune), ntrk(nt) {
         TH1::AddDirectory(kFALSE);
         int i,j;
@@ -64,10 +64,13 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
-        double th0 = -5.0*3.14159/180; // PREX central angle
-        double th0_apex = -6.0*3.14159/180; // APEX central angle
-        double th0_crex = -4.0*3.14159/180; // APEX central angle
-        double th1 = -12.5*3.14159/180; // HRS angle
+        int sign;       
+        if(fArm == kLHRS) {sign = -1; } else {sign = 1; }
+
+        double th0 = -sign*5.0*3.14159/180; // PREX central angle
+        double th0_apex = -sign*6.0*3.14159/180; // APEX central angle
+        double th0_crex = -sign*4.0*3.14159/180; // APEX central angle
+        double th1 = -sign*12.5*3.14159/180; // HRS angle
 
         double l_sept = 0.95; //  Matches SNAKE
 
@@ -99,7 +102,7 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
         if( fTune == kPREX ){
             nelm = 15;
         //    double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.00 };
-            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
+            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };//RR for PREX-II we were using 0.9
 
             // Septum tune
             chain[0] = makedrift( dr_l[0] );
@@ -389,22 +392,22 @@ void THRSTrans::DoTransport(){
                     //standard
                     switch(i){
                         case 1:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 2:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 3:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 4:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1]/2 ){
                                 acc[j] = false;
                             }
                             break;
@@ -420,12 +423,12 @@ void THRSTrans::DoTransport(){
                             }
                             break;
                         case 7:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 8:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2]/2 ){
                                 acc[j] = false;
                             }
                             break;
@@ -450,22 +453,22 @@ void THRSTrans::DoTransport(){
 
                     switch(i){
                         case 6:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 7:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 8:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 9:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1]/2 ){
                                 acc[j] = false;
                             }
                             break;
@@ -481,7 +484,7 @@ void THRSTrans::DoTransport(){
                             }
                             break;
                         case 12:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2]/2 ){
                                 acc[j] = false;
                             }
                             break;
@@ -513,22 +516,22 @@ void THRSTrans::DoTransport(){
 
                     switch(i){
                         case 6:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 7:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[0]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 8:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 9:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[1]/2 ){
                                 acc[j] = false;
                             }
                             break;
@@ -544,12 +547,12 @@ void THRSTrans::DoTransport(){
                             }
                             break;
                         case 12:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2]/2 ){
                                 acc[j] = false;
                             }
                             break;
                         case 13:
-                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2] ){
+                            if( sqrt(v[kX]*v[kX] + v[kY]*v[kY]) > apps[2]/2 ){
                                 acc[j] = false;
                             }
                             break;
@@ -1139,8 +1142,31 @@ TMatrixD *THRSTrans::GetOptics(int idx){
     return newm;
 }
 
+  TMatrixD *THRSTrans::GetOpS(int idx){ 
+    int i,j;
 
+    TMatrixD *m;
+      if(idx != -1){
+         m = trans[idx];
+      } else { 
+          m = trans[nelm];
+      }
 
+   //RR, To first order, the reconstruction matrix doesn't include x_tg couplings and d_fp couplings. 
+    
+     int map[15] = {kX, kTh,kY,kPh,kX2,kXTh,kXY,kXPh,kTh2,kThY,kThPh,kY2,kYPh,kPh2,kd};
+
+     TMatrixD *newm = new TMatrixD(15,15);
+        for(i = 0; i < 14; i++){
+            for(j = 1; j < 15; j++){
+               (*newm)[i][j-1] = (*m)[map[i]][map[j]];
+            }  
+        } 
+
+       newm->Invert();
+
+       return newm;
+}
 
 TMatrixD *THRSTrans::swapxy(double sign){
     // Sign + (RHRS convention)
@@ -1197,6 +1223,53 @@ void THRSTrans::fillvector(TVectorD &v){
     v[kPhd] = v[kPh]*v[kd];
     return;
 }
+
+void THRSTrans::trcs2dcs(TVectorD &v, TVectorD &w){
+  //RR Please see Kiad's thesis (Appendix A) as a reference for this coordinate system
+  double angle = -45*TMath::Pi()/180;
+
+        w[kTh] = (v[kTh] - tan(angle))/(1+v[kTh]*tan(angle));
+        w[kPh] = v[kPh]*(cos(angle)-w[kTh]*sin(angle));
+        w[kX] = v[kX]/(cos(angle)*(1+v[kTh]*tan(angle)));
+        w[kY] = v[kY] - sin(angle)*v[kPh]*w[kX];
+
+        return;
+}
+
+void THRSTrans::trcs2fcs(TVectorD &v, TVectorD &w, TVectorD &u, double a, double b, double c, double d, double e, double f){
+  //RR Please see Kiad's thesis (Appendix A) as a reference for this coordinate system
+  //The doubles passed are from Appendix C (the lower case tensors) from his thesis, these depend on the arm and we consider only the first couple of elements
+  //a,b for y elements, c,d for theta elements and e,f for phi elements
+
+   trcs2dcs(v,w);
+
+    u[kX] = v[kX];
+        u[kY] = v[kY] - (a + b*u[kX]);
+
+        double tan_rho = c + d*u[kX]; double cos_rho = 1.0/sqrt(1 + tan_rho*tan_rho); double sin_rho = sqrt(1.0 - cos_rho*cos_rho);
+
+        u[kTh] = ( w[kTh] + tan_rho )/( 1.0 - w[kTh]*tan_rho );
+
+        u[kPh] = ( w[kPh] - (e + f*u[kX]) )/( cos_rho + w[kTh]*sin_rho  );
+
+
+        return;
+}
+
+void THRSTrans::sept_mistune(TVectorD &iv, TVectorD &v, TMatrixD *m){
+
+
+      v[kd] = v[kd] - ((*m)[kd][kd])*iv[kd];
+
+       v[kd2] = v[kd2] - ((*m)[kd2][kd2])*iv[kd];
+
+        return;
+
+}
+
+  
+
+
 
 void THRSTrans::setcrossterms(TMatrixD *m){
   int ldebug=0;
