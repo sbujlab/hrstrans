@@ -74,18 +74,20 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
         double sept_rho = (l_sept/cos(th0))/
             ( sin(th1-th0) - sin(th0) + cos(th1-th0)*sin(th0) );
 
-        // Septum center is 1.7538 downstream of target
+        // Septum center is 1.7538 downstream of target for PREX 1
 
-        double sept_face = 1.7538 - l_sept/2;
-        double sept_exit = 1.7538 + l_sept/2;
+        double offset = -0.1;
 
-        double sept_face_apex = 1.46 - l_sept/2;
-        double sept_exit_apex = 1.46 + l_sept/2;
+        double sept_face = 1.7538 - l_sept/2 - offset;
+        double sept_exit = 1.7538 + l_sept/2 - offset;
 
-        double sept_face_crex = 2.0538 - l_sept/2;
-        double sept_exit_crex = 2.0538 + l_sept/2;
+        double sept_face_apex = 1.46 - l_sept/2 - offset;
+        double sept_exit_apex = 1.46 + l_sept/2 - offset;
 
-        double Q1_z = 2.3956;// From survey +
+        double sept_face_crex = 2.0538 - l_sept/2 - offset;
+        double sept_exit_crex = 2.0538 + l_sept/2 - offset;
+
+        double Q1_z = 2.3956 - offset;// From survey +
         double Q1coll_to_bore = 0.31 ; //  From HRS survey assuming spectrometers at 12.5 deg
                                        //  and survey
 
@@ -99,7 +101,9 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double k1, double k2, t
         if( fTune == kPREX ){
             nelm = 15;
         //    double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.25, 4.42, 1.50, 3.57, 1.00 };
-            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
+        
+//            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 1.43 };
+            double dr_l[8] = {sept_face, sept_exit_to_q1, Q1coll_to_bore, 1.172, 4.431, 1.50, 3.452, 0.9 };
 
             // Septum tune
             chain[0] = makedrift( dr_l[0] );
@@ -1107,7 +1111,7 @@ void THRSTrans::PrintSimple(TMatrixD *m, double l){
 
     (*newm) = (*drift)*(*newm);
 
-    newm->Print("f=%6.2f");
+    newm->Print("f= %6.6f ");
 
     delete newm;
     delete drift;

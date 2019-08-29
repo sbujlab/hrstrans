@@ -8,7 +8,7 @@
 
 void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
     THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kPREX, 50000);
-//    THRSTrans *trans = new THRSTrans(par[0], par[1], par[2], 0.050178, 0.037056, THRSTrans::kCREX, 50000);
+
 
 
     TMatrixD tovdc= *(trans->GetTransport(14));
@@ -179,104 +179,32 @@ void fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
 
 
 
-void hrstrans4(){
+void hrstrans_prexii_tuneP(){
 
     // LeRose SNAKE scaled by 1.4 (in agreement with standard tune)
     //THRSTrans *trans = new THRSTrans( 0.1288, -0.1393, -0.1736, 0.050178, 0.037056, THRSTrans::kPREX);
 
     // Fit to LeRose
 //    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kPREX);
-    THRSTrans *trans = new THRSTrans(0.123927, -0.136553, -0.171648, 0.050178, 0.037056, THRSTrans::kPREX);
-
-//    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kCREX);
-
-    trans->PrintSimple(trans->GetTransport());
-//    return;
-
-    /*
-    // Optimization for CREX
-    THRSTrans *trans = new THRSTrans(0.080742, -0.127490, -0.172573, 0.050178, 0.037056, THRSTrans::kCREX);
+    THRSTrans *trans = new THRSTrans(0.122396*0.94*0.95, -0.136543, -0.171633*0.93*0.95, 0.050178, 0.037056, THRSTrans::kPREX);
 
 
-
-
-    printf("LeRose focal plane\n");
-    trans->ShowOutput(14, 0.75);
-    printf("True focal plane\n");
-    trans->ShowOutput();
-    trans->ShowAcc();
-
-    trans->GetOptics(14)->Print();
-
-    trans->ShowFocalLengths();
-
-    return;
-    */
-
-    TMinuit *gMinuit = new TMinuit(3);
-    gMinuit->SetFCN(fcn);
-    Double_t arglist[10];
-    Int_t ierflg = 0;
-
-    arglist[0] = 1;
-    gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
-    Double_t vstart[5] = {
-    // Standard tune
-    //PREX Tune
-    1.38796e-01, -1.370e-01, -1.72034e-01};
-
-    Double_t step[5] = {0.001 , 0.001 , 0.001};
-
-    gMinuit->mnparm(0, "q1", vstart[0], step[0], 0,0,ierflg);
-    gMinuit->mnparm(1, "q2", vstart[1], step[1], 0,0,ierflg);
-    gMinuit->mnparm(2, "q3", vstart[2], step[2], 0, 0,ierflg);
-
-
-    arglist[0] = 5000;
-    arglist[1] = 1.;
-    gMinuit->mnexcm("SIMPLEX", arglist ,2,ierflg);
-    Double_t amin,edm,errdef;
-    Int_t nvpar,nparx,icstat;
-    gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
-    gMinuit->mnimpr();
-    gMinuit->mnimpr();
-    double q1, q2, q3, psi1, psi2, e1;
-
-    gMinuit->GetParameter(0, q1, e1);
-    gMinuit->GetParameter(1, q2, e1);
-    gMinuit->GetParameter(2, q3, e1);
-
-    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kPREX);
-//    THRSTrans *result = new THRSTrans( q1, q2, q3, 0.050178, 0.037056, THRSTrans::kCREX);
-
-    /*
-    result->ShowOutput(9);
-    result->ShowOutput(12);
-    printf("q3ex\n");
-    result->ShowOutput(13);
-
-    printf("fp + 0.75\n");
-    result->ShowOutput(-1, 0.75);
-    printf("fp + 1.43\n");
-    result->ShowOutput(-1, 1.43);
-    */
-
-    //result->ShowOutput();
+    //trans->ShowOutput();
     printf("Septum Transport\n");
-    result->ShowOutput(4, 0);
+    trans->ShowOutput(4, 0);
 
     printf("VDC Focal Plane\n");
-    result->ShowOutput(14, 0.0);
+    trans->ShowOutput(14, 0.0);
 
 
     printf("LeRose Focal Plane\n");
-    result->ShowOutput(14, 0.75);
+    trans->ShowOutput(14, 0.75);
     printf("True Focal Plane\n");
-    result->ShowOutput();
+    trans->ShowOutput();
     printf("Optics Matrix\n");
-    result->GetOptics()->Print();
-    result->ShowAcc();
-    result->ShowFocalLengths();
+    trans->GetOptics()->Print();
+    trans->ShowAcc();
+    trans->ShowFocalLengths();
 
     return;
 }
