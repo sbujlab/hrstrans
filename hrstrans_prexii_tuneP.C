@@ -186,25 +186,17 @@ void hrstrans_prexii_tuneP(){
 
     // Fit to LeRose
 //    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kPREX);
-    THRSTrans *trans = new THRSTrans(0.122396*0.94*0.95, -0.136543, -0.171633*0.93*0.95, 0.050178, 0.037056, THRSTrans::kPREX);
+    THRSTrans *trans = new THRSTrans(0.122396*0.94*0.95, -0.136543*1.2, -0.171633*0.93*0.95, 0.050178, 0.037056, THRSTrans::kPREX);
 
 
     //trans->ShowOutput();
-    printf("Septum Transport\n");
-    trans->ShowOutput(4, 0);
+    printf("Dipole entrance Transport\n");
+    trans->ShowOutput(10, 0);
+    printf("Dipole exit Transport\n");
+    trans->ShowOutput(11, 0);
 
-    printf("VDC Focal Plane\n");
-    trans->ShowOutput(14, 0.0);
-
-
-    printf("LeRose Focal Plane\n");
-    trans->ShowOutput(14, 0.75);
-    printf("True Focal Plane\n");
-    trans->ShowOutput();
     printf("Optics Matrix\n");
     trans->GetOptics()->Print();
-    trans->ShowAcc();
-    trans->ShowFocalLengths();
 
     return;
 }
