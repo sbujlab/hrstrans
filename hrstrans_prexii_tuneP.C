@@ -186,7 +186,7 @@ void hrstrans_prexii_tuneP(){
 
     // Fit to LeRose
 //    THRSTrans *trans = new THRSTrans( 0.098786, -0.132014, -0.172415, 0.050178, 0.037056, THRSTrans::kPREX);
-    THRSTrans *trans = new THRSTrans(0.122396*0.94*0.95, -0.136543*1.2, -0.171633*0.93*0.95, 0.050178, 0.037056, THRSTrans::kPREX);
+    THRSTrans *trans = new THRSTrans(0.122396*0.94*0.95, -0.136543*0.75, -0.171633*0.93*0.95, 0.050178, 0.037056, THRSTrans::kPREX);
 
 
     //trans->ShowOutput();
@@ -194,6 +194,11 @@ void hrstrans_prexii_tuneP(){
     trans->ShowOutput(10, 0);
     printf("Dipole exit Transport\n");
     trans->ShowOutput(11, 0);
+
+    printf("Q3 Entrance Transport\n");
+    trans->ShowOutput(12, 0);
+    printf("Q3 Exit Transport\n");
+    trans->ShowOutput(13, 0);
 
     printf("Optics Matrix\n");
     trans->GetOptics()->Print();
