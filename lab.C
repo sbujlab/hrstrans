@@ -62,7 +62,7 @@ double M = A*amu;
 double ratio = E/M;
 
 double recoil = 1.0 + ratio*(1.0-cos(scat_theta));
-double Eprime = Energy/recoil;
+double Eprime = E/recoil;
 
 double q2 = 2*E*Eprime*(1.0-cos(scat_theta));
 
