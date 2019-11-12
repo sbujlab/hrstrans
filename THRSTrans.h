@@ -2,6 +2,8 @@
 #define __THRSTRANS_H
 
 #include "TMatrixD.h"
+#include <fstream>
+
 class TH1F;
 class TGraph;
 
@@ -46,6 +48,8 @@ class THRSTrans {
 
     void SetSeptumPsi( double k1, double k2 ){ sept_K1 = k1; sept_K2 = k2; DoTransport(); }
 
+    void tree();
+
     private:
         tune_t fTune;
         arm_t fArm;
@@ -81,15 +85,21 @@ class THRSTrans {
         double fdp_lim;
 
         int ntrk;
-        double ytg[1000000], xtg[1000000], thtg[1000000], phtg[1000000], dp[1000000];
-        bool acc[1000000];
+        double ytg[2000000], xtg[2000000], thtg[2000000], phtg[2000000], dp[2000000];
+        bool acc[2000000];
+
+
+
 
         void setcrossterms(TMatrixD *);
         void trcs2dcs(TVectorD &, TVectorD &);//RR transport to detector coordinates
         void trcs2fcs(TVectorD &, TVectorD &, TVectorD &, double, double, double, double, double, double); //RR converts transport to focal plane coordinates, doubles depend on which arm, motivated by looking at the PREX-I transport tensor
         
         void sept_mistune(TVectorD &, TVectorD &, TMatrixD *); //RR for septum mistune        
+        void ReadFile(string );//Reading file
 
+        vector <double> q_all;
+        vector <double> ff;
 
          TGraph *gx_th, *gx_x0, *gx_d, *gy_ph, *gy_y0 , *gph_y0, *gph_ph;
 };

@@ -10,6 +10,13 @@
 #include "TRandom.h"
 #include "TVectorD.h"
 #include <iostream>
+#include "lab.C"
+#include "TTree.h"
+#include "TFile.h"
+#include <vector>
+#include <algorithm>
+#include <string>
+#include "interpolation.C"
 
 using namespace std;
 
@@ -244,11 +251,11 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double S1, double S2, d
             larr[i+1] = larr[i]+lchain[i];
         }
 
-        fdp_rng= 0.1;
-        fytg_rng = 0.1;
-        fxtg_rng = 0.005;
-        fthtg_rng = 0.15;
-        fphtg_rng = 0.08;
+        fdp_rng= 0.0;
+        fytg_rng = 0.003;
+        fxtg_rng = 0.002;
+        fthtg_rng = 0.04;
+        fphtg_rng = 0.03;
 
         fdp_lim= 0.045;
         fytg_lim = 0.05;
@@ -262,9 +269,10 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double S1, double S2, d
             xtg[i]  = gRandom->Uniform(-fxtg_rng,fxtg_rng);
             thtg[i] = gRandom->Uniform(-fthtg_rng, fthtg_rng);
             phtg[i] = gRandom->Uniform(-fphtg_rng, fphtg_rng);
-            dp[i]   = gRandom->Uniform(-fdp_rng,fdp_rng);
+            dp[i]   = gRandom->Uniform(-fdp_rng,fdp_rng);              
             acc[i] = true;
-        }
+       
+     }
 
 
         nbin = 40;
@@ -1408,5 +1416,145 @@ TMatrixD *THRSTrans::GetTransport(int a, int b){
 }
 
 
+void THRSTrans::tree(){
+
+  int i,j,k;
+ 
+  //Q^2 from sim,mott cross section,FF^2
+  double Qsq, xs,formf;  
+  
+       double qsq1, qsq, form_factor1, form_factor;
+
+  char breakpoints[13][50] = {"sen","sex","col","q1en","q1ex","q2en","q2ex","den","dex","q3en","q3ex","vdc","fp"};
+ 
+  string filename = "pb208.txt";
+   
+  ReadFile(filename);
+
+
+  TVectorD iv(20), v(20); 
+
+  TFile *tf = new TFile("TuneP_LHRS.root","RECREATE");
+  TTree *op = new TTree("op","Optics Tree");
+
+  op->Branch("x_tg",&iv[kX],"xtg/D");
+  op->Branch("th_tg",&iv[kTh],"thtg/D");
+  op->Branch("y_tg",&iv[kY],"ytg/D");
+  op->Branch("ph_tg",&iv[kPh],"phtg/D");
+  op->Branch("dp",&iv[kd],"dp/D");
+
+
+  for(i = 0; i < 13; i++){
+   op->Branch(Form("x_%s",breakpoints[i]),&v[kX],Form("x_%s/D",breakpoints[i]));
+   op->Branch(Form("th_%s",breakpoints[i]),&v[kTh],Form("th_%s/D",breakpoints[i]));
+   op->Branch(Form("y_%s",breakpoints[i]),&v[kY],Form("y_%s/D",breakpoints[i]));
+   op->Branch(Form("ph_%s",breakpoints[i]),&v[kPh],Form("ph_%s/D",breakpoints[i]));
+
+
+   }
+
+  
+
+  op->Branch("Q2",&Qsq,"Q2/D");
+  op->Branch("xs",&xs,"xs/D");
+  op->Branch("FF2",&formf,"FF2/D");
+
+  for( j = 0; j < 20; j++ ){
+     
+    for( k = 0; k < 20; k++ ){
+
+        if( j == k ){ 
+          
+             (*trans[0])[j][k] = 1.0;
+        } else {
+ 
+             (*trans[0])[j][k] = 0.0;
+
+        }
+      }
+
+  }
+
+
+    for( i = 0; i < nelm; i++ ) { trans[i+1] =  new TMatrixD( (*chain[i])*(*trans[i]) );  }
+
+
+
+   for(j = 0; j < ntrk; j++){ 
+
+    
+    iv[kX] = xtg[j];
+    iv[kTh] = thtg[j];
+    iv[kY] = ytg[j];
+    iv[kPh] = phtg[j];
+    iv[kd] = dp[j];
+
+    fillvector(iv);
+
+    Qsq = Q2(0.95,iv[kTh],iv[kPh],208,-1);
+    xs = crsMott(82,0.95,iv[kTh],iv[kPh],208,-1);
+
+
+
+    for(k = 0; k < q_all.size(); k++){
+
+    vector <double>::const_iterator iterQsq = upper_bound(q_all.begin(), q_all.end(), Qsq );
+
+      int indxQsq = iterQsq - q_all.begin();
+
+       if (indxQsq == 0) indxQsq = 1; // use the min.
+
+       if (indxQsq <= 0 || indxQsq >= (Int_t)q_all.size()) return;
+
+
+      qsq1 =  q_all.at(indxQsq);
+      qsq = q_all.at(indxQsq-1);
+
+      form_factor1 = ff.at(indxQsq);
+      form_factor = ff.at(indxQsq-1);
+
+
+
+    }
+
+   formf = interpolation(Qsq,qsq,form_factor,qsq1,form_factor1);
+   
+
+    for(int i = 2; i < nelm+1;i++){
+
+    if(i != 4) {  v = (*GetTransport(i))*iv;   }
+
+
+    }
+
+
+
+op->Fill();
+
+}
+
+
+tf->Write();
+tf->Close();
+
+
+
+}
+
+
+void THRSTrans::ReadFile(string file){
+
+ifstream table;
+table.open(file.c_str());
+
+if(!table){ cout << "Can't open file" << endl; }
+
+double QQ, FF;
+
+while( table >> QQ >> FF ) { q_all.push_back( QQ*QQ*0.197*0.197 ); ff.push_back(FF); }
+//Table gives Q in fm^-1 so the vector q_all returns Q^2 from table in GeV
+
+
+}
 
 
