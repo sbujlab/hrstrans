@@ -13,10 +13,9 @@
 #include "lab.C"
 #include "TTree.h"
 #include "TFile.h"
-#include <vector>
 #include <algorithm>
-#include <string>
 #include "interpolation.C"
+#include "TPaveText.h"
 
 using namespace std;
 
@@ -249,7 +248,8 @@ THRSTrans::THRSTrans(double bq1, double bq2, double bq3, double S1, double S2, d
         larr[0] = 0.0;
         for( i = 0; i < nelm; i++ ){
             larr[i+1] = larr[i]+lchain[i];
-        }
+        // cout << larr[i] << endl;
+         }
 
         fdp_rng= 0.0;
         fytg_rng = 0.003;
@@ -657,6 +657,9 @@ void THRSTrans::ShowOutput(int idx, double l){
     mgx->Add(gx_x0, "L");
     mgx->Add(gx_d, "L");
 
+    TPaveText *pt = new TPaveText(0.015,0.91,0.4,1.0,"brNDC");
+    pt->AddText("Q1 0% Q3 -1%");
+    
 
     TLegend *leg = new TLegend(0.14, 0.64, 0.43, 0.86);
     leg->AddEntry(gx_x0, "(x|x_{tg})", "l");
@@ -682,7 +685,7 @@ void THRSTrans::ShowOutput(int idx, double l){
     TMultiGraph *mgph = new TMultiGraph();
     mgph->Add(gph_ph, "L");
     mgph->Add(gph_y0, "L");
-
+/*
     TCanvas *cx =new TCanvas();
     cx->SetGridx();
     cx->SetGridy();
@@ -691,9 +694,9 @@ void THRSTrans::ShowOutput(int idx, double l){
     mgx->GetXaxis()->SetTitle("t [m]");
     mgx->GetXaxis()->CenterTitle();
     mgx->Draw("A");
-
     leg->Draw();
-
+    pt->Draw();
+    cx->Print("./tunes/xq1_q3min1.pdf");
 
     TCanvas *cy = new TCanvas();
     cy->SetGridx();
@@ -704,18 +707,20 @@ void THRSTrans::ShowOutput(int idx, double l){
     mgy->GetXaxis()->CenterTitle();
     mgy->Draw("A");
     legy->Draw();
-
-    TCanvas *c = new TCanvas();
-    /*
+    pt->Draw();
+    cy->Print("./tunes/yq1_q3min1.pdf");
+*/
+/*
+    TCanvas *c = new TCanvas(); 
     c->Divide(5,2);
     for( i = 0; i < 5; i++ ){
-        c->cd(i+1);
+        c->cd(i+c1);
         hacc[i][0][0]->Draw();
         hacc[i][1][0]->Draw("same");
         c->cd(i+6);
         gacc[i][0]->Draw("AC");
     }
-    */
+    
     c->Divide(2,2);
     for( i = 1; i < 5; i++ ){
         c->cd(i);
@@ -723,7 +728,7 @@ void THRSTrans::ShowOutput(int idx, double l){
 //        hacc[i][1][0]->Draw("same");
         gacc[i][0]->Draw("AC");
     }
-
+*/
 
     if( idx == -1 ){
         PrintSimple(trans[nelm], l);
@@ -1419,6 +1424,7 @@ TMatrixD *THRSTrans::GetTransport(int a, int b){
 void THRSTrans::tree(){
 
   int i,j,k;
+  unsigned int l;
  
   //Q^2 from sim,mott cross section,FF^2
   double Qsq, xs,formf;  
@@ -1496,7 +1502,7 @@ void THRSTrans::tree(){
 
 
 
-    for(k = 0; k < q_all.size(); k++){
+    for(l = 0; l < q_all.size(); l++){
 
     vector <double>::const_iterator iterQsq = upper_bound(q_all.begin(), q_all.end(), Qsq );
 
@@ -1557,4 +1563,13 @@ while( table >> QQ >> FF ) { q_all.push_back( QQ*QQ*0.197*0.197 ); ff.push_back(
 
 }
 
+void THRSTrans::GetMomResolution(){
 
+
+double x_delta = (*GetTransport())[kX][kd];
+double x_x = (*GetTransport())[kX][kX];
+
+
+printf("%5.6f\n",fabs(x_delta/x_x));
+
+}

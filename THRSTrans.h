@@ -3,6 +3,8 @@
 
 #include "TMatrixD.h"
 #include <fstream>
+#include <string>
+#include <vector>
 
 class TH1F;
 class TGraph;
@@ -23,6 +25,7 @@ class THRSTrans {
 
     void DoTransport();
     void PrintSimple(TMatrixD *, double l = 0.0);
+    void GetMomResolution();
 
     enum trans_t {kX, kTh, kd, kX2, kXTh, kXd, kTh2, kThd, kd2, kY2, kYPh, kPh2, kY, kPh, kXY, kXPh, kThY, kThPh, kYd, kPhd };
 
